@@ -162,7 +162,8 @@ Provide a brief, clear explanation focusing on what it means and why it's releva
       headers: {
         'x-api-key': settings.apiKey,
         'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01'
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
         model: settings.model || 'claude-3-sonnet-20240229',

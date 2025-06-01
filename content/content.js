@@ -108,8 +108,15 @@ class InContextLookup {
         <div class="explanation">
           <div class="loading">Analyzing...</div>
         </div>
+        <div class="continue-button-container" style="display: none;">
+          <button class="continue-button" type="button">Continue in AI →</button>
+        </div>
       </div>
     `;
+
+    this.floatingBox.querySelector('.continue-button').addEventListener('click', () => {
+      this.openContinueConversation();
+    });
 
     document.body.appendChild(this.floatingBox);
   }
@@ -148,12 +155,68 @@ class InContextLookup {
     this.floatingBox.style.top = `${top}px`;
     this.floatingBox.style.display = 'block';
     
-    // Reset explanation content
+    // Reset explanation content and hide continue button
     this.floatingBox.querySelector('.explanation').innerHTML = '<div class="loading">Analyzing...</div>';
+    this.floatingBox.querySelector('.continue-button-container').style.display = 'none';
   }
 
   hideFloatingBox() {
     this.floatingBox.style.display = 'none';
+  }
+
+  async openContinueConversation() {
+    try {
+      // Get current settings to determine which provider to use
+      const result = await browser.storage.local.get('settings');
+      const settings = result.settings || {};
+      const provider = settings.provider || 'meta';
+
+      const pageContext = this.getPageContext();
+      const prompt = this.buildContinuePrompt(pageContext);
+
+      if (provider === 'openai') {
+        this.openChatGPT(prompt);
+      } else if (provider === 'anthropic') {
+        this.openClaude(prompt);
+      } else {
+        // Default to ChatGPT if unknown provider
+        this.openChatGPT(prompt);
+      }
+    } catch (error) {
+      console.error('Error opening continue conversation:', error);
+    }
+  }
+
+  buildContinuePrompt(pageContext) {
+    return `I'm reading an article and would like to discuss this text in more detail:
+
+Page: ${pageContext.title}
+URL: ${pageContext.url}
+
+Selected text: "${pageContext.selectedText}"
+
+Context: ${pageContext.contextText ? pageContext.contextText.substring(0, 500) + '...' : 'No additional context'}
+
+Can you help me understand this better and discuss related concepts?`;
+  }
+
+  openChatGPT(prompt) {
+    const encodedPrompt = encodeURIComponent(prompt);
+    const url = `https://chatgpt.com/?q=${encodedPrompt}`;
+    window.open(url, '_blank');
+  }
+
+  openClaude(prompt) {
+    // Claude doesn't have URL parameters for pre-filling, so we'll open Claude and copy the prompt
+    window.open('https://claude.ai/chat', '_blank');
+    
+    // Copy the prompt to clipboard so user can paste it
+    navigator.clipboard.writeText(prompt).then(() => {
+      // Could show a small notification that prompt was copied
+      console.log('Prompt copied to clipboard for Claude');
+    }).catch(err => {
+      console.error('Failed to copy prompt:', err);
+    });
   }
 
   getPageContext() {
@@ -202,6 +265,8 @@ class InContextLookup {
         this.floatingBox.querySelector('.explanation').innerHTML = `
           <div class="explanation-text">${response.explanation}</div>
         `;
+        // Show continue button after successful explanation
+        this.floatingBox.querySelector('.continue-button-container').style.display = 'block';
       } else {
         this.floatingBox.querySelector('.explanation').innerHTML = `
           <div class="error">Error: ${response.error}</div>
