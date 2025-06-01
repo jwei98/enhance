@@ -282,20 +282,43 @@ Can you help me understand this better and discuss related concepts?`;
       console.error('Error getting context length setting:', error);
     }
     
-    // Get surrounding text context
-    const selection = window.getSelection();
+    // Get surrounding text context by finding the selected text in the page
     let contextText = '';
     
-    if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      const container = range.commonAncestorContainer;
-      const parentElement = container.nodeType === Node.TEXT_NODE ? 
-        container.parentElement : container;
+    if (this.selectedText) {
+      // Try to find the selected text in the page and get surrounding context
+      const textContent = document.body.textContent || document.body.innerText || '';
+      const selectedTextIndex = textContent.indexOf(this.selectedText);
       
-      // Get paragraph or article context
-      const contextElement = parentElement.closest('p, article, section, div.content, div.post, div.article');
-      if (contextElement) {
-        contextText = contextElement.textContent.trim().substring(0, maxContextLength);
+      if (selectedTextIndex !== -1) {
+        // Get context around the selected text
+        const contextStart = Math.max(0, selectedTextIndex - Math.floor(maxContextLength / 2));
+        const contextEnd = Math.min(textContent.length, selectedTextIndex + this.selectedText.length + Math.floor(maxContextLength / 2));
+        contextText = textContent.substring(contextStart, contextEnd).trim();
+        
+        // If we truncated, add ellipsis
+        if (contextStart > 0) contextText = '...' + contextText;
+        if (contextEnd < textContent.length) contextText = contextText + '...';
+      } else {
+        // Fallback: try to find context using DOM elements
+        const walker = document.createTreeWalker(
+          document.body,
+          NodeFilter.SHOW_TEXT,
+          null,
+          false
+        );
+        
+        let node;
+        while (node = walker.nextNode()) {
+          if (node.textContent.includes(this.selectedText)) {
+            const parentElement = node.parentElement;
+            const contextElement = parentElement.closest('p, article, section, div.content, div.post, div.article, main');
+            if (contextElement) {
+              contextText = contextElement.textContent.trim().substring(0, maxContextLength);
+              break;
+            }
+          }
+        }
       }
     }
 
