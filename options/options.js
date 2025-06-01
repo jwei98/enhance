@@ -89,14 +89,17 @@ class OptionsManager {
   updateAPIKeyVisibility(provider) {
     const openaiGroup = document.getElementById('openai-api-key-group');
     const anthropicGroup = document.getElementById('anthropic-api-key-group');
+    const anthropicInfo = document.getElementById('anthropic-continue-info');
     
     if (openaiGroup && anthropicGroup) {
       if (provider === 'openai') {
         openaiGroup.style.display = 'block';
         anthropicGroup.style.display = 'none';
+        if (anthropicInfo) anthropicInfo.style.display = 'none';
       } else if (provider === 'anthropic') {
         openaiGroup.style.display = 'none';
         anthropicGroup.style.display = 'block';
+        if (anthropicInfo) anthropicInfo.style.display = 'block';
       }
     } else {
       console.error('API key groups not found:', { openaiGroup, anthropicGroup });

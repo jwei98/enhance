@@ -175,6 +175,19 @@ main {
   text-decoration: underline;
 }
 
+.provider-info {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f0f7ff;
+  border: 1px solid #e3f2fd;
+  border-radius: 6px;
+}
+
+.provider-info .help-text {
+  margin: 0;
+  color: #1565c0;
+}
+
 .btn {
   padding: 12px 24px;
   border: none;
