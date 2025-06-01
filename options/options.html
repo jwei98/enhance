@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>In-Context Lookup Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔍 In-Context Lookup Settings</h1>
+      <p>Configure your AI provider and API settings</p>
+    </header>
+
+    <main>
+      <div class="section">
+        <h2>API Provider</h2>
+        <div class="form-group">
+          <label>Choose your AI provider:</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="provider" value="openai" id="provider-openai">
+              <span class="radio-custom"></span>
+              <span>OpenAI (GPT-3.5/GPT-4)</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="provider" value="anthropic" id="provider-anthropic">
+              <span class="radio-custom"></span>
+              <span>Anthropic (Claude)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>API Configuration</h2>
+        
+        <div class="form-group">
+          <label for="api-key">API Key:</label>
+          <input type="password" id="api-key" placeholder="Enter your API key">
+          <small class="help-text">
+            Your API key is stored locally and never shared. 
+            <a href="#" id="get-key-link" target="_blank">Get API key</a>
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="model">Model:</label>
+          <select id="model">
+            <option value="">Select a model...</option>
+          </select>
+          <small class="help-text">Choose the AI model to use for explanations</small>
+        </div>
+
+        <div class="form-group">
+          <label for="max-tokens">Max Response Length:</label>
+          <input type="number" id="max-tokens" min="50" max="500" step="25" value="150">
+          <small class="help-text">Maximum length of explanations (50-500 tokens)</small>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Activation Settings</h2>
+        
+        <div class="form-group">
+          <label for="trigger-key">Trigger Key:</label>
+          <select id="trigger-key">
+            <option value="meta">Cmd/Meta (Recommended)</option>
+            <option value="alt">Alt</option>
+            <option value="shift">Shift</option>
+          </select>
+          <small class="help-text">Hold this key while selecting text to trigger explanation</small>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Test Configuration</h2>
+        <div class="form-group">
+          <button type="button" id="test-api" class="btn btn-secondary">Test API Connection</button>
+          <div id="test-result" class="test-result"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" id="save-settings" class="btn btn-primary">Save Settings</button>
+        <button type="button" id="reset-settings" class="btn btn-outline">Reset to Defaults</button>
+      </div>
+
+      <div id="status" class="status"></div>
+    </main>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
