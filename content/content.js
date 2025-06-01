@@ -104,21 +104,12 @@ class InContextLookup {
     this.floatingBox.id = 'in-context-lookup-box';
     this.floatingBox.style.display = 'none';
     this.floatingBox.innerHTML = `
-      <div class="box-header">
-        <span class="box-title">💡 Explanation</span>
-        <button class="close-button" type="button">&times;</button>
-      </div>
       <div class="box-body">
-        <div class="selected-text"></div>
         <div class="explanation">
           <div class="loading">Analyzing...</div>
         </div>
       </div>
     `;
-
-    this.floatingBox.querySelector('.close-button').addEventListener('click', () => {
-      this.hideFloatingBox();
-    });
 
     document.body.appendChild(this.floatingBox);
   }
@@ -156,8 +147,6 @@ class InContextLookup {
     this.floatingBox.style.left = `${Math.max(margin, left)}px`;
     this.floatingBox.style.top = `${top}px`;
     this.floatingBox.style.display = 'block';
-    
-    this.floatingBox.querySelector('.selected-text').textContent = `"${this.selectedText}"`;
     
     // Reset explanation content
     this.floatingBox.querySelector('.explanation').innerHTML = '<div class="loading">Analyzing...</div>';
