@@ -190,8 +190,8 @@ class OptionsManager {
         return;
       }
 
-      if (!maxContextLength || maxContextLength < 200 || maxContextLength > 2000) {
-        this.showStatus('Max request length must be between 200 and 2000', 'error');
+      if (!maxContextLength || maxContextLength < 200 || maxContextLength > 10000) {
+        this.showStatus('Max request length must be between 200 and 10,000', 'error');
         return;
       }
 
