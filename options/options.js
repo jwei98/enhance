@@ -27,15 +27,27 @@ class OptionsManager {
   }
 
   bindEvents() {
-    document.getElementById('provider-openai').addEventListener('change', () => this.onProviderChange('openai'));
-    document.getElementById('provider-anthropic').addEventListener('change', () => this.onProviderChange('anthropic'));
-    document.getElementById('save-settings').addEventListener('click', () => this.saveSettings());
-    document.getElementById('reset-settings').addEventListener('click', () => this.resetSettings());
-    document.getElementById('test-api').addEventListener('click', () => this.testAPI());
-    document.getElementById('get-key-link').addEventListener('click', (e) => {
-      e.preventDefault();
-      this.openAPIKeyPage();
-    });
+    const openaiRadio = document.getElementById('provider-openai');
+    const anthropicRadio = document.getElementById('provider-anthropic');
+    const saveButton = document.getElementById('save-settings');
+    const resetButton = document.getElementById('reset-settings');
+    const testButton = document.getElementById('test-api');
+
+    if (openaiRadio) {
+      openaiRadio.addEventListener('change', () => this.onProviderChange('openai'));
+    }
+    if (anthropicRadio) {
+      anthropicRadio.addEventListener('change', () => this.onProviderChange('anthropic'));
+    }
+    if (saveButton) {
+      saveButton.addEventListener('click', () => this.saveSettings());
+    }
+    if (resetButton) {
+      resetButton.addEventListener('click', () => this.resetSettings());
+    }
+    if (testButton) {
+      testButton.addEventListener('click', () => this.testAPI());
+    }
   }
 
   onProviderChange(provider) {
@@ -59,13 +71,18 @@ class OptionsManager {
 
   updateModelOptions(provider) {
     const modelSelect = document.getElementById('model');
-    modelSelect.innerHTML = '<option value="">Select a model...</option>';
+    modelSelect.innerHTML = '';
     
-    this.models[provider].forEach(model => {
+    this.models[provider].forEach((model, index) => {
       const option = document.createElement('option');
       option.value = model.value;
       option.textContent = model.label;
       modelSelect.appendChild(option);
+      
+      // Auto-select the first model (which is the recommended one)
+      if (index === 0) {
+        option.selected = true;
+      }
     });
   }
 
@@ -73,12 +90,16 @@ class OptionsManager {
     const openaiGroup = document.getElementById('openai-api-key-group');
     const anthropicGroup = document.getElementById('anthropic-api-key-group');
     
-    if (provider === 'openai') {
-      openaiGroup.style.display = 'block';
-      anthropicGroup.style.display = 'none';
-    } else if (provider === 'anthropic') {
-      openaiGroup.style.display = 'none';
-      anthropicGroup.style.display = 'block';
+    if (openaiGroup && anthropicGroup) {
+      if (provider === 'openai') {
+        openaiGroup.style.display = 'block';
+        anthropicGroup.style.display = 'none';
+      } else if (provider === 'anthropic') {
+        openaiGroup.style.display = 'none';
+        anthropicGroup.style.display = 'block';
+      }
+    } else {
+      console.error('API key groups not found:', { openaiGroup, anthropicGroup });
     }
   }
 
@@ -88,23 +109,45 @@ class OptionsManager {
       const result = await browser.storage.local.get('settings');
       const settings = result.settings || {};
 
-      // Set provider
+      console.log('Loading settings:', settings); // Debug log
+
+      // Set provider (default to 'openai' if none set)
       const provider = settings.provider || 'openai';
-      document.getElementById(`provider-${provider}`).checked = true;
+      console.log('Selected provider:', provider); // Debug log
+      
+      const providerRadio = document.getElementById(`provider-${provider}`);
+      if (providerRadio) {
+        providerRadio.checked = true;
+        console.log('Set radio button for:', provider); // Debug log
+      } else {
+        console.error('Could not find radio button for provider:', provider);
+      }
+      
+      // Set other fields first (except model - that needs to be set after provider change)
+      const openaiKeyField = document.getElementById('openai-api-key');
+      const anthropicKeyField = document.getElementById('anthropic-api-key');
+      const maxTokensField = document.getElementById('max-tokens');
+      const triggerKeyField = document.getElementById('trigger-key');
+
+      if (openaiKeyField) openaiKeyField.value = settings.openaiApiKey || '';
+      if (anthropicKeyField) anthropicKeyField.value = settings.anthropicApiKey || '';
+      if (maxTokensField) maxTokensField.value = settings.maxTokens || 150;
+      if (triggerKeyField) triggerKeyField.value = settings.triggerKey || 'meta';
+
+      // Trigger all provider-related updates (models, styling, visibility)
       this.onProviderChange(provider);
 
-      // Set other fields
-      document.getElementById('openai-api-key').value = settings.openaiApiKey || '';
-      document.getElementById('anthropic-api-key').value = settings.anthropicApiKey || '';
-      document.getElementById('model').value = settings.model || '';
-      document.getElementById('max-tokens').value = settings.maxTokens || 150;
-      document.getElementById('trigger-key').value = settings.triggerKey || 'meta';
-
-      // Update radio button styles
-      this.updateRadioStyles();
+      // Set model after provider change has populated the options
+      const modelField = document.getElementById('model');
+      if (modelField && settings.model) {
+        modelField.value = settings.model;
+      }
 
     } catch (error) {
+      console.error('Error loading settings:', error);
       this.showStatus('Error loading settings', 'error');
+      // Fallback to default state
+      this.onProviderChange('openai');
     }
   }
 
@@ -133,6 +176,7 @@ class OptionsManager {
         return;
       }
 
+      // Model should always be selected now due to auto-selection
       if (!model) {
         this.showStatus('Please select a model', 'error');
         return;
@@ -152,7 +196,9 @@ class OptionsManager {
         triggerKey
       };
 
+      console.log('Saving settings:', settings); // Debug log
       await browser.storage.local.set({ settings });
+      console.log('Settings saved to storage'); // Debug log
       this.showStatus('Settings saved successfully!', 'success');
 
     } catch (error) {
