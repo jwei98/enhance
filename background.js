@@ -19,10 +19,12 @@ class InContextLookupBackground {
     try {
       const settings = await this.getSettings();
       
-      if (!settings.apiKey) {
+      // Check if the selected provider has an API key
+      const apiKey = settings.provider === 'openai' ? settings.openaiApiKey : settings.anthropicApiKey;
+      if (!apiKey) {
         sendResponse({
           success: false,
-          error: 'No API key configured. Please configure your API key in the extension options.'
+          error: `No ${settings.provider === 'openai' ? 'OpenAI' : 'Anthropic'} API key configured. Please configure your API key in the extension options.`
         });
         return;
       }
@@ -46,10 +48,12 @@ class InContextLookupBackground {
     try {
       const settings = await this.getTestSettings();
       
-      if (!settings.apiKey) {
+      // Check if the selected provider has an API key
+      const apiKey = settings.provider === 'openai' ? settings.openaiApiKey : settings.anthropicApiKey;
+      if (!apiKey) {
         sendResponse({
           success: false,
-          error: 'No API key configured. Please configure your API key in the extension options.'
+          error: `No ${settings.provider === 'openai' ? 'OpenAI' : 'Anthropic'} API key configured. Please configure your API key in the extension options.`
         });
         return;
       }
@@ -72,7 +76,8 @@ class InContextLookupBackground {
   async getSettings() {
     const defaultSettings = {
       provider: 'openai',
-      apiKey: '',
+      openaiApiKey: '',
+      anthropicApiKey: '',
       model: 'gpt-3.5-turbo',
       maxTokens: 150,
       triggerKey: 'meta'
@@ -90,7 +95,8 @@ class InContextLookupBackground {
   async getTestSettings() {
     const defaultSettings = {
       provider: 'openai',
-      apiKey: '',
+      openaiApiKey: '',
+      anthropicApiKey: '',
       model: 'gpt-3.5-turbo',
       maxTokens: 150,
       triggerKey: 'meta'
@@ -131,7 +137,7 @@ Provide a brief, clear explanation focusing on what it means and why it's releva
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${settings.apiKey}`,
+        'Authorization': `Bearer ${settings.openaiApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -160,7 +166,7 @@ Provide a brief, clear explanation focusing on what it means and why it's releva
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'x-api-key': settings.apiKey,
+        'x-api-key': settings.anthropicApiKey,
         'Content-Type': 'application/json',
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'

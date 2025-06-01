@@ -37,11 +37,20 @@
         <h2>API Configuration</h2>
         
         <div class="form-group">
-          <label for="api-key">API Key:</label>
-          <input type="password" id="api-key" placeholder="Enter your API key">
+          <label for="openai-api-key">OpenAI API Key:</label>
+          <input type="password" id="openai-api-key" placeholder="Enter your OpenAI API key">
           <small class="help-text">
             Your API key is stored locally and never shared. 
-            <a href="#" id="get-key-link" target="_blank">Get API key</a>
+            <a href="https://platform.openai.com/api-keys" target="_blank">Get OpenAI API key</a>
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="anthropic-api-key">Anthropic API Key:</label>
+          <input type="password" id="anthropic-api-key" placeholder="Enter your Anthropic API key">
+          <small class="help-text">
+            Your API key is stored locally and never shared. 
+            <a href="https://console.anthropic.com/account/keys" target="_blank">Get Anthropic API key</a>
           </small>
         </div>
 

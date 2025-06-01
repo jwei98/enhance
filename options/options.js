@@ -40,7 +40,6 @@ class OptionsManager {
 
   onProviderChange(provider) {
     this.updateModelOptions(provider);
-    this.updateAPIKeyLink(provider);
     this.updateRadioStyles();
   }
 
@@ -69,11 +68,6 @@ class OptionsManager {
     });
   }
 
-  updateAPIKeyLink(provider) {
-    const link = document.getElementById('get-key-link');
-    link.href = this.apiUrls[provider];
-    link.textContent = `Get ${provider === 'openai' ? 'OpenAI' : 'Anthropic'} API key`;
-  }
 
   async loadSettings() {
     try {
@@ -86,7 +80,8 @@ class OptionsManager {
       this.onProviderChange(provider);
 
       // Set other fields
-      document.getElementById('api-key').value = settings.apiKey || '';
+      document.getElementById('openai-api-key').value = settings.openaiApiKey || '';
+      document.getElementById('anthropic-api-key').value = settings.anthropicApiKey || '';
       document.getElementById('model').value = settings.model || '';
       document.getElementById('max-tokens').value = settings.maxTokens || 150;
       document.getElementById('trigger-key').value = settings.triggerKey || 'meta';
@@ -102,7 +97,8 @@ class OptionsManager {
   async saveSettings() {
     try {
       const provider = document.querySelector('input[name="provider"]:checked')?.value;
-      const apiKey = document.getElementById('api-key').value.trim();
+      const openaiApiKey = document.getElementById('openai-api-key').value.trim();
+      const anthropicApiKey = document.getElementById('anthropic-api-key').value.trim();
       const model = document.getElementById('model').value;
       const maxTokens = parseInt(document.getElementById('max-tokens').value);
       const triggerKey = document.getElementById('trigger-key').value;
@@ -112,8 +108,14 @@ class OptionsManager {
         return;
       }
 
-      if (!apiKey) {
-        this.showStatus('Please enter your API key', 'error');
+      // Check that the selected provider has an API key
+      if (provider === 'openai' && !openaiApiKey) {
+        this.showStatus('Please enter your OpenAI API key', 'error');
+        return;
+      }
+
+      if (provider === 'anthropic' && !anthropicApiKey) {
+        this.showStatus('Please enter your Anthropic API key', 'error');
         return;
       }
 
@@ -129,7 +131,8 @@ class OptionsManager {
 
       const settings = {
         provider,
-        apiKey,
+        openaiApiKey,
+        anthropicApiKey,
         model,
         maxTokens,
         triggerKey
@@ -165,17 +168,28 @@ class OptionsManager {
 
     try {
       const provider = document.querySelector('input[name="provider"]:checked')?.value;
-      const apiKey = document.getElementById('api-key').value.trim();
+      const openaiApiKey = document.getElementById('openai-api-key').value.trim();
+      const anthropicApiKey = document.getElementById('anthropic-api-key').value.trim();
       const model = document.getElementById('model').value;
 
-      if (!provider || !apiKey || !model) {
-        throw new Error('Please fill in all required fields before testing');
+      if (!provider || !model) {
+        throw new Error('Please select a provider and model before testing');
+      }
+
+      // Check that the selected provider has an API key
+      if (provider === 'openai' && !openaiApiKey) {
+        throw new Error('Please enter your OpenAI API key before testing');
+      }
+
+      if (provider === 'anthropic' && !anthropicApiKey) {
+        throw new Error('Please enter your Anthropic API key before testing');
       }
 
       // Temporarily save current settings for test
       const testSettings = {
         provider,
-        apiKey,
+        openaiApiKey,
+        anthropicApiKey,
         model,
         maxTokens: parseInt(document.getElementById('max-tokens').value) || 150,
         triggerKey: document.getElementById('trigger-key').value || 'meta'
