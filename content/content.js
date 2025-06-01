@@ -2,7 +2,7 @@ class InContextLookup {
   constructor() {
     this.selectedText = '';
     this.floatingBox = null;
-    this.triggerKey = 'meta'; // Default, will be updated from settings
+    this.triggerKey = 'alt'; // Default, will be updated from settings
     this.keyPressed = {
       ctrl: false,
       alt: false,
@@ -23,10 +23,10 @@ class InContextLookup {
     try {
       const result = await browser.storage.local.get('settings');
       const settings = result.settings || {};
-      this.triggerKey = settings.triggerKey || 'meta';
+      this.triggerKey = settings.triggerKey || 'alt';
     } catch (error) {
       console.error('Error loading settings:', error);
-      this.triggerKey = 'meta';
+      this.triggerKey = 'alt';
     }
   }
 
@@ -58,7 +58,7 @@ class InContextLookup {
     // Listen for settings changes
     browser.storage.onChanged.addListener((changes) => {
       if (changes.settings) {
-        this.triggerKey = changes.settings.newValue?.triggerKey || 'meta';
+        this.triggerKey = changes.settings.newValue?.triggerKey || 'alt';
       }
     });
   }
@@ -169,9 +169,9 @@ class InContextLookup {
       // Get current settings to determine which provider to use
       const result = await browser.storage.local.get('settings');
       const settings = result.settings || {};
-      const provider = settings.provider || 'meta';
+      const provider = settings.provider || 'alt';
 
-      const pageContext = this.getPageContext();
+      const pageContext = await this.getPageContext();
       const prompt = this.buildContinuePrompt(pageContext);
 
       if (provider === 'openai') {
@@ -219,10 +219,19 @@ Can you help me understand this better and discuss related concepts?`;
     });
   }
 
-  getPageContext() {
+  async getPageContext() {
     const title = document.title || '';
     const url = window.location.href;
     const metaDescription = document.querySelector('meta[name="description"]')?.content || '';
+    
+    // Get max context length from settings
+    let maxContextLength = 1000; // default
+    try {
+      const result = await browser.storage.local.get('settings');
+      maxContextLength = result.settings?.maxContextLength || 1000;
+    } catch (error) {
+      console.error('Error getting context length setting:', error);
+    }
     
     // Get surrounding text context
     const selection = window.getSelection();
@@ -237,7 +246,7 @@ Can you help me understand this better and discuss related concepts?`;
       // Get paragraph or article context
       const contextElement = parentElement.closest('p, article, section, div.content, div.post, div.article');
       if (contextElement) {
-        contextText = contextElement.textContent.trim().substring(0, 1000);
+        contextText = contextElement.textContent.trim().substring(0, maxContextLength);
       }
     }
 
@@ -253,7 +262,7 @@ Can you help me understand this better and discuss related concepts?`;
   async explainText(selection) {
     this.showFloatingBox(selection);
 
-    const pageContext = this.getPageContext();
+    const pageContext = await this.getPageContext();
     
     try {
       const response = await browser.runtime.sendMessage({

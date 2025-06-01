@@ -15,6 +15,20 @@
 
     <main>
       <div class="section">
+        <h2>Activation Settings</h2>
+        
+        <div class="form-group">
+          <label for="trigger-key">Trigger Key:</label>
+          <select id="trigger-key">
+            <option value="alt">Alt (Recommended)</option>
+            <option value="meta">Cmd/Meta</option>
+            <option value="shift">Shift</option>
+          </select>
+          <small class="help-text">Hold this key while selecting text to trigger explanation</small>
+        </div>
+      </div>
+
+      <div class="section">
         <h2>API Provider</h2>
         <div class="form-group">
           <label>Choose your AI provider:</label>
@@ -22,12 +36,12 @@
             <label class="radio-label">
               <input type="radio" name="provider" value="openai" id="provider-openai">
               <span class="radio-custom"></span>
-              <span>OpenAI (GPT-3.5/GPT-4)</span>
+              <span>OpenAI</span>
             </label>
             <label class="radio-label">
               <input type="radio" name="provider" value="anthropic" id="provider-anthropic">
               <span class="radio-custom"></span>
-              <span>Anthropic (Claude)</span>
+              <span>Anthropic</span>
             </label>
           </div>
         </div>
@@ -63,6 +77,12 @@
         </div>
 
         <div class="form-group">
+          <label for="max-context-length">Max Request Length:</label>
+          <input type="number" id="max-context-length" min="200" max="2000" step="100" value="1000">
+          <small class="help-text">Maximum characters of surrounding text to include as context (200-2000 characters)</small>
+        </div>
+
+        <div class="form-group">
           <label for="max-tokens">Max Response Length:</label>
           <input type="number" id="max-tokens" min="50" max="500" step="25" value="150">
           <small class="help-text">Maximum length of explanations (50-500 tokens)</small>
@@ -71,20 +91,6 @@
         <div class="form-group">
           <button type="button" id="test-api" class="btn btn-secondary">Test API Connection</button>
           <div id="test-result" class="test-result"></div>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>Activation Settings</h2>
-        
-        <div class="form-group">
-          <label for="trigger-key">Trigger Key:</label>
-          <select id="trigger-key">
-            <option value="meta">Cmd/Meta (Recommended)</option>
-            <option value="alt">Alt</option>
-            <option value="shift">Shift</option>
-          </select>
-          <small class="help-text">Hold this key while selecting text to trigger explanation</small>
         </div>
       </div>
 

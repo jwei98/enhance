@@ -80,7 +80,8 @@ class InContextLookupBackground {
       anthropicApiKey: '',
       model: 'gpt-3.5-turbo',
       maxTokens: 150,
-      triggerKey: 'meta'
+      maxContextLength: 1000,
+      triggerKey: 'alt'
     };
 
     try {
@@ -99,7 +100,8 @@ class InContextLookupBackground {
       anthropicApiKey: '',
       model: 'gpt-3.5-turbo',
       maxTokens: 150,
-      triggerKey: 'meta'
+      maxContextLength: 1000,
+      triggerKey: 'alt'
     };
 
     try {

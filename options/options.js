@@ -127,12 +127,14 @@ class OptionsManager {
       const openaiKeyField = document.getElementById('openai-api-key');
       const anthropicKeyField = document.getElementById('anthropic-api-key');
       const maxTokensField = document.getElementById('max-tokens');
+      const maxContextLengthField = document.getElementById('max-context-length');
       const triggerKeyField = document.getElementById('trigger-key');
 
       if (openaiKeyField) openaiKeyField.value = settings.openaiApiKey || '';
       if (anthropicKeyField) anthropicKeyField.value = settings.anthropicApiKey || '';
       if (maxTokensField) maxTokensField.value = settings.maxTokens || 150;
-      if (triggerKeyField) triggerKeyField.value = settings.triggerKey || 'meta';
+      if (maxContextLengthField) maxContextLengthField.value = settings.maxContextLength || 1000;
+      if (triggerKeyField) triggerKeyField.value = settings.triggerKey || 'alt';
 
       // Trigger all provider-related updates (models, styling, visibility)
       this.onProviderChange(provider);
@@ -158,6 +160,7 @@ class OptionsManager {
       const anthropicApiKey = document.getElementById('anthropic-api-key').value.trim();
       const model = document.getElementById('model').value;
       const maxTokens = parseInt(document.getElementById('max-tokens').value);
+      const maxContextLength = parseInt(document.getElementById('max-context-length').value);
       const triggerKey = document.getElementById('trigger-key').value;
 
       if (!provider) {
@@ -187,12 +190,18 @@ class OptionsManager {
         return;
       }
 
+      if (!maxContextLength || maxContextLength < 200 || maxContextLength > 2000) {
+        this.showStatus('Max request length must be between 200 and 2000', 'error');
+        return;
+      }
+
       const settings = {
         provider,
         openaiApiKey,
         anthropicApiKey,
         model,
         maxTokens,
+        maxContextLength,
         triggerKey
       };
 
@@ -252,7 +261,8 @@ class OptionsManager {
         anthropicApiKey,
         model,
         maxTokens: parseInt(document.getElementById('max-tokens').value) || 150,
-        triggerKey: document.getElementById('trigger-key').value || 'meta'
+        maxContextLength: parseInt(document.getElementById('max-context-length').value) || 1000,
+        triggerKey: document.getElementById('trigger-key').value || 'alt'
       };
 
       await browser.storage.local.set({ testSettings });
