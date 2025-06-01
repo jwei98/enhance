@@ -41,6 +41,7 @@ class OptionsManager {
   onProviderChange(provider) {
     this.updateModelOptions(provider);
     this.updateRadioStyles();
+    this.updateAPIKeyVisibility(provider);
   }
 
   updateRadioStyles() {
@@ -66,6 +67,19 @@ class OptionsManager {
       option.textContent = model.label;
       modelSelect.appendChild(option);
     });
+  }
+
+  updateAPIKeyVisibility(provider) {
+    const openaiGroup = document.getElementById('openai-api-key-group');
+    const anthropicGroup = document.getElementById('anthropic-api-key-group');
+    
+    if (provider === 'openai') {
+      openaiGroup.style.display = 'block';
+      anthropicGroup.style.display = 'none';
+    } else if (provider === 'anthropic') {
+      openaiGroup.style.display = 'none';
+      anthropicGroup.style.display = 'block';
+    }
   }
 
 
