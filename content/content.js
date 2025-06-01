@@ -383,6 +383,7 @@ Can you help me understand this better and discuss related concepts?`;
         action: 'explainText',
         data: pageContext
       });
+      console.log('API Response:', response.success ? 'Success' : `Error: ${response.error}`);
 
       if (response.success) {
         this.floatingBox.querySelector('.explanation').innerHTML = `<div class="explanation-text">${response.explanation}<span class="continue-icon" title="Continue in AI">↗</span></div>`;
