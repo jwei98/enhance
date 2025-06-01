@@ -50,8 +50,11 @@ class InContextLookup {
 
     // Hide floating box when clicking elsewhere
     document.addEventListener('click', (e) => {
-      if (this.floatingBox && !this.floatingBox.contains(e.target)) {
-        this.hideFloatingBox();
+      if (this.floatingBox && this.floatingBox.style.display !== 'none') {
+        // Check if click is outside the floating box
+        if (!this.floatingBox.contains(e.target)) {
+          this.hideFloatingBox();
+        }
       }
     });
 
@@ -91,7 +94,10 @@ class InContextLookup {
         this.selectedText = selectedText;
         this.explainText(selection);
       } else {
-        this.hideFloatingBox();
+        // Don't hide the floating box if the click was inside it
+        if (!this.floatingBox || !this.floatingBox.contains(e.target) || this.floatingBox.style.display === 'none') {
+          this.hideFloatingBox();
+        }
       }
 
       // Reset the flag after handling selection
@@ -111,6 +117,10 @@ class InContextLookup {
       </div>
     `;
 
+    // Prevent clicks inside the floating box from bubbling up
+    this.floatingBox.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
 
     document.body.appendChild(this.floatingBox);
   }
