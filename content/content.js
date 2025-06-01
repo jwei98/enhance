@@ -164,7 +164,8 @@ class InContextLookup {
       const settings = result.settings || {};
       const provider = settings.provider || 'alt';
 
-      const pageContext = await this.getPageContext();
+      // Use the same context that was sent to the API, or get fresh context if not available
+      const pageContext = this.lastPageContext || await this.getPageContext();
       const prompt = this.buildContinuePrompt(pageContext);
 
       if (provider === 'openai') {
@@ -188,7 +189,7 @@ URL: ${pageContext.url}
 
 Selected text: "${pageContext.selectedText}"
 
-Context: ${pageContext.contextText ? pageContext.contextText.substring(0, 500) + '...' : 'No additional context'}
+Context: ${pageContext.contextText || 'No additional context'}
 
 Can you help me understand this better and discuss related concepts?`;
   }
@@ -268,6 +269,26 @@ Can you help me understand this better and discuss related concepts?`;
     }, 3000);
   }
 
+  getCleanTextContent() {
+    // Create a clone of the body to avoid modifying the original
+    const bodyClone = document.body.cloneNode(true);
+    
+    // Remove script, style, noscript, svg, canvas elements and their content
+    const elementsToRemove = bodyClone.querySelectorAll('script, style, noscript, svg, canvas, iframe, object, embed');
+    elementsToRemove.forEach(el => el.remove());
+    
+    // Get text content and clean up whitespace
+    let textContent = bodyClone.textContent || bodyClone.innerText || '';
+    
+    // Remove excessive whitespace and normalize
+    textContent = textContent
+      .replace(/\s+/g, ' ')  // Replace multiple whitespace with single space
+      .replace(/\n\s*\n/g, '\n')  // Remove empty lines
+      .trim();
+    
+    return textContent;
+  }
+
   async getPageContext() {
     const title = document.title || '';
     const url = window.location.href;
@@ -286,35 +307,53 @@ Can you help me understand this better and discuss related concepts?`;
     let contextText = '';
     
     if (this.selectedText) {
-      // Try to find the selected text in the page and get surrounding context
-      const textContent = document.body.textContent || document.body.innerText || '';
-      const selectedTextIndex = textContent.indexOf(this.selectedText);
+      // Get clean text content by removing scripts, styles, and other non-content elements
+      const cleanTextContent = this.getCleanTextContent();
+      const selectedTextIndex = cleanTextContent.indexOf(this.selectedText);
       
       if (selectedTextIndex !== -1) {
         // Get context around the selected text
         const contextStart = Math.max(0, selectedTextIndex - Math.floor(maxContextLength / 2));
-        const contextEnd = Math.min(textContent.length, selectedTextIndex + this.selectedText.length + Math.floor(maxContextLength / 2));
-        contextText = textContent.substring(contextStart, contextEnd).trim();
+        const contextEnd = Math.min(cleanTextContent.length, selectedTextIndex + this.selectedText.length + Math.floor(maxContextLength / 2));
+        contextText = cleanTextContent.substring(contextStart, contextEnd).trim();
+        
+        // Clean up whitespace and line breaks
+        contextText = contextText.replace(/\s+/g, ' ').trim();
         
         // If we truncated, add ellipsis
         if (contextStart > 0) contextText = '...' + contextText;
-        if (contextEnd < textContent.length) contextText = contextText + '...';
+        if (contextEnd < cleanTextContent.length) contextText = contextText + '...';
       } else {
         // Fallback: try to find context using DOM elements
         const walker = document.createTreeWalker(
           document.body,
           NodeFilter.SHOW_TEXT,
-          null,
+          {
+            acceptNode: (node) => {
+              // Skip text nodes inside script, style, noscript, etc.
+              const parent = node.parentElement;
+              if (!parent) return NodeFilter.FILTER_REJECT;
+              
+              const tagName = parent.tagName.toLowerCase();
+              if (['script', 'style', 'noscript', 'svg', 'canvas'].includes(tagName)) {
+                return NodeFilter.FILTER_REJECT;
+              }
+              
+              return NodeFilter.FILTER_ACCEPT;
+            }
+          },
           false
         );
         
         let node;
+        let found = false;
         while (node = walker.nextNode()) {
           if (node.textContent.includes(this.selectedText)) {
             const parentElement = node.parentElement;
             const contextElement = parentElement.closest('p, article, section, div.content, div.post, div.article, main');
             if (contextElement) {
-              contextText = contextElement.textContent.trim().substring(0, maxContextLength);
+              contextText = contextElement.textContent.trim().replace(/\s+/g, ' ').substring(0, maxContextLength);
+              found = true;
               break;
             }
           }
@@ -335,6 +374,9 @@ Can you help me understand this better and discuss related concepts?`;
     this.showFloatingBox(selection);
 
     const pageContext = await this.getPageContext();
+    
+    // Store the context for use in continue conversation
+    this.lastPageContext = pageContext;
     
     try {
       const response = await browser.runtime.sendMessage({
