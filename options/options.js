@@ -109,16 +109,13 @@ class OptionsManager {
       const result = await browser.storage.local.get('settings');
       const settings = result.settings || {};
 
-      console.log('Loading settings:', settings); // Debug log
 
       // Set provider (default to 'openai' if none set)
       const provider = settings.provider || 'openai';
-      console.log('Selected provider:', provider); // Debug log
       
       const providerRadio = document.getElementById(`provider-${provider}`);
       if (providerRadio) {
         providerRadio.checked = true;
-        console.log('Set radio button for:', provider); // Debug log
       } else {
         console.error('Could not find radio button for provider:', provider);
       }
@@ -205,9 +202,7 @@ class OptionsManager {
         triggerKey
       };
 
-      console.log('Saving settings:', settings); // Debug log
       await browser.storage.local.set({ settings });
-      console.log('Settings saved to storage'); // Debug log
       this.showStatus('Settings saved successfully!', 'success');
 
     } catch (error) {

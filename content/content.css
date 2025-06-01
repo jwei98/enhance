@@ -101,33 +101,16 @@
   background: #a8a8a8;
 }
 
-/* Continue button styles */
-#in-context-lookup-box .continue-button-container {
-  margin-top: 12px;
-  padding-top: 8px;
-  border-top: 1px solid #f0f0f0;
-}
-
-#in-context-lookup-box .continue-button {
-  background: #f8f9fa;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  padding: 6px 12px;
-  font-size: 11px;
-  color: #5f6368;
+/* Continue icon styles */
+#in-context-lookup-box .continue-icon {
+  color: #4285f4;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-  width: 100%;
-  text-align: center;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  margin-left: 3px;
 }
 
-#in-context-lookup-box .continue-button:hover {
-  background: #f1f3f4;
-  border-color: #dadce0;
-  color: #202124;
-}
-
-#in-context-lookup-box .continue-button:active {
-  background: #e8eaed;
+#in-context-lookup-box .continue-icon:hover {
+  opacity: 1;
+  color: #1a73e8;
 }

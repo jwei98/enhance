@@ -108,15 +108,9 @@ class InContextLookup {
         <div class="explanation">
           <div class="loading">Analyzing...</div>
         </div>
-        <div class="continue-button-container" style="display: none;">
-          <button class="continue-button" type="button">Continue in AI →</button>
-        </div>
       </div>
     `;
 
-    this.floatingBox.querySelector('.continue-button').addEventListener('click', () => {
-      this.openContinueConversation();
-    });
 
     document.body.appendChild(this.floatingBox);
   }
@@ -155,9 +149,8 @@ class InContextLookup {
     this.floatingBox.style.top = `${top}px`;
     this.floatingBox.style.display = 'block';
     
-    // Reset explanation content and hide continue button
+    // Reset explanation content
     this.floatingBox.querySelector('.explanation').innerHTML = '<div class="loading">Analyzing...</div>';
-    this.floatingBox.querySelector('.continue-button-container').style.display = 'none';
   }
 
   hideFloatingBox() {
@@ -210,13 +203,69 @@ Can you help me understand this better and discuss related concepts?`;
     // Claude doesn't have URL parameters for pre-filling, so we'll open Claude and copy the prompt
     window.open('https://claude.ai/chat', '_blank');
     
-    // Copy the prompt to clipboard so user can paste it
-    navigator.clipboard.writeText(prompt).then(() => {
-      // Could show a small notification that prompt was copied
-      console.log('Prompt copied to clipboard for Claude');
-    }).catch(err => {
+    // Try to copy the prompt to clipboard with fallback methods
+    this.copyToClipboard(prompt);
+  }
+
+  async copyToClipboard(text) {
+    try {
+      // First try the modern clipboard API
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        this.showCopyNotification('Prompt copied to clipboard');
+        return;
+      }
+      
+      // Fallback method for older browsers or insecure contexts
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        this.showCopyNotification('Prompt copied to clipboard');
+      } else {
+        this.showCopyNotification('Copy failed - please copy manually', true);
+      }
+    } catch (err) {
       console.error('Failed to copy prompt:', err);
-    });
+      this.showCopyNotification('Copy failed - please copy manually', true);
+    }
+  }
+
+  showCopyNotification(message, isError = false) {
+    // Create a temporary notification
+    const notification = document.createElement('div');
+    notification.textContent = message;
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${isError ? '#f44336' : '#4caf50'};
+      color: white;
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      z-index: 1000000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 3000);
   }
 
   async getPageContext() {
@@ -271,11 +320,12 @@ Can you help me understand this better and discuss related concepts?`;
       });
 
       if (response.success) {
-        this.floatingBox.querySelector('.explanation').innerHTML = `
-          <div class="explanation-text">${response.explanation}</div>
-        `;
-        // Show continue button after successful explanation
-        this.floatingBox.querySelector('.continue-button-container').style.display = 'block';
+        this.floatingBox.querySelector('.explanation').innerHTML = `<div class="explanation-text">${response.explanation}<span class="continue-icon" title="Continue in AI">↗</span></div>`;
+        
+        // Add click handler to the continue icon
+        this.floatingBox.querySelector('.continue-icon').addEventListener('click', () => {
+          this.openContinueConversation();
+        });
       } else {
         this.floatingBox.querySelector('.explanation').innerHTML = `
           <div class="error">Error: ${response.error}</div>
