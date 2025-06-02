@@ -21,11 +21,14 @@ The extension uses the WebExtension polyfill to ensure compatibility across all 
 
 ## Setup Instructions
 
-### 1. Add Extension Icons
-Create the following icon files in the `icons/` directory:
-- `icon-16.png` (16x16 pixels)
-- `icon-48.png` (48x48 pixels) 
-- `icon-128.png` (128x128 pixels)
+### 1. Install Dependencies and Build
+
+```bash
+npm install
+npm run build
+```
+
+This will compile the TypeScript source files and create a `dist/` directory with the built extension.
 
 ### 2. Install the Extension
 
@@ -35,19 +38,29 @@ Create the following icon files in the `icons/` directory:
 1. Open Firefox and navigate to `about:debugging`
 2. Click "This Firefox" in the left sidebar
 3. Click "Load Temporary Add-on"
-4. Select the `manifest.json` file from this directory
+4. Select the `manifest.json` file from the `dist/` directory
 
 **Chrome:**
 1. Open Chrome and navigate to `chrome://extensions/`
 2. Enable "Developer mode" in the top right
 3. Click "Load unpacked"
-4. Select this directory (containing `manifest.json`)
+4. Select the `dist/` directory (containing the built extension)
 
 #### Production Installation:
-1. Package the extension: `web-ext build`
-2. Install the generated `.xpi` file
+1. Package the extension: `npm run package`
+2. Install the generated package file
 
-### 3. Configure API Access
+### 3. Development Workflow
+
+For development with automatic rebuilding:
+
+```bash
+npm run dev
+```
+
+This runs webpack in watch mode, automatically recompiling when you change TypeScript files.
+
+### 4. Configure API Access
 
 1. Click the extension icon or go to Add-ons → In-Context Lookup → Options
 2. Choose your preferred AI provider:
@@ -68,16 +81,23 @@ The extension will analyze the selected text in the context of the current webpa
 
 ```
 /
-├── manifest.json              # Extension manifest
-├── background.js              # Background script for API calls
+├── src/                      # TypeScript source files
+│   ├── background.ts         # Background script for API calls
+│   ├── content/
+│   │   └── content.ts        # Content script for UI and text selection
+│   └── options/
+│       └── options.ts        # Options page functionality
+├── dist/                     # Built extension (generated)
 ├── content/
-│   ├── content.js            # Content script for UI and text selection
 │   └── content.css           # Styles for floating button and modal
 ├── options/
 │   ├── options.html          # Options page HTML
-│   ├── options.js            # Options page functionality
 │   └── options.css           # Options page styles
-└── icons/                    # Extension icons (16px, 48px, 128px)
+├── icons/                    # Extension icons (16px, 48px, 128px)
+├── manifest.json             # Extension manifest
+├── package.json              # Node.js dependencies and build scripts
+├── tsconfig.json             # TypeScript configuration
+└── webpack.config.js         # Build configuration
 ```
 
 ## API Providers
