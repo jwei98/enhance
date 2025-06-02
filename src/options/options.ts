@@ -126,6 +126,7 @@ class OptionsManager {
     this.updateModelOptions(provider);
     this.updateRadioStyles();
     this.updateAPIKeyVisibility(provider);
+    this.clearTestResult();
   }
 
   updateRadioStyles(): void {
@@ -459,6 +460,13 @@ class OptionsManager {
     const providerConfig = this.providers[provider];
     if (providerConfig) {
       browser.tabs.create({ url: providerConfig.apiKeyUrl });
+    }
+  }
+
+  clearTestResult(): void {
+    const testResult = getElement("test-result", HTMLElement);
+    if (testResult) {
+      testResult.innerHTML = "";
     }
   }
 
