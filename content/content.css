@@ -1,4 +1,4 @@
-#in-context-lookup-box {
+#enhance-box {
   position: absolute;
   z-index: 999999;
   width: 320px;
@@ -26,32 +26,32 @@
 }
 
 
-#in-context-lookup-box .box-body {
+#enhance-box .box-body {
   padding: 14px;
   max-height: 350px;
   overflow-y: auto;
 }
 
 
-#in-context-lookup-box .explanation {
+#enhance-box .explanation {
   color: #202124;
   font-size: 13px;
   line-height: 1.5;
 }
 
-#in-context-lookup-box .explanation-text {
+#enhance-box .explanation-text {
   white-space: pre-wrap;
   word-break: break-word;
 }
 
-#in-context-lookup-box .loading {
+#enhance-box .loading {
   display: flex;
   align-items: center;
   color: #5f6368;
   font-size: 12px;
 }
 
-#in-context-lookup-box .loading::before {
+#enhance-box .loading::before {
   content: '';
   width: 12px;
   height: 12px;
@@ -68,7 +68,7 @@
   }
 }
 
-#in-context-lookup-box .error {
+#enhance-box .error {
   color: #d93025;
   background: #fce8e6;
   padding: 8px 12px;
@@ -78,31 +78,31 @@
 }
 
 /* Ensure the box stays on top of other elements */
-#in-context-lookup-box {
+#enhance-box {
   pointer-events: auto;
 }
 
 /* Custom scrollbar for better UX */
-#in-context-lookup-box .box-body::-webkit-scrollbar {
+#enhance-box .box-body::-webkit-scrollbar {
   width: 6px;
 }
 
-#in-context-lookup-box .box-body::-webkit-scrollbar-track {
+#enhance-box .box-body::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 3px;
 }
 
-#in-context-lookup-box .box-body::-webkit-scrollbar-thumb {
+#enhance-box .box-body::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 3px;
 }
 
-#in-context-lookup-box .box-body::-webkit-scrollbar-thumb:hover {
+#enhance-box .box-body::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
 
 /* Continue icon styles */
-#in-context-lookup-box .continue-icon {
+#enhance-box .continue-icon {
   color: #4285f4;
   cursor: pointer;
   opacity: 0.7;
@@ -110,7 +110,7 @@
   margin-left: 3px;
 }
 
-#in-context-lookup-box .continue-icon:hover {
+#enhance-box .continue-icon:hover {
   opacity: 1;
   color: #1a73e8;
 }

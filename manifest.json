@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "In-Context Lookup",
+  "name": "Enhance",
   "version": "1.0.0",
-  "description": "Explain selected text in context using AI",
+  "description": "Enhance your reading with AI-powered text explanations",
 
   "permissions": [
     "storage",
@@ -29,12 +29,6 @@
   "options_ui": {
     "page": "options/options.html",
     "open_in_tab": true
-  },
-
-  "icons": {
-    "16": "icons/icon-16.png",
-    "48": "icons/icon-48.png",
-    "128": "icons/icon-128.png"
   },
 
   "web_accessible_resources": [

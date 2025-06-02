@@ -1,4 +1,4 @@
-class InContextLookup {
+class Enhance {
   constructor() {
     this.selectedText = '';
     this.floatingBox = null;
@@ -120,7 +120,7 @@ class InContextLookup {
 
   createFloatingBox() {
     this.floatingBox = document.createElement('div');
-    this.floatingBox.id = 'in-context-lookup-box';
+    this.floatingBox.id = 'enhance-box';
     this.floatingBox.style.display = 'none';
     this.floatingBox.innerHTML = `
       <div class="box-body">
@@ -428,4 +428,4 @@ Can you help me understand this better and discuss related concepts?`;
 }
 
 // Initialize the extension
-new InContextLookup();
+new Enhance();

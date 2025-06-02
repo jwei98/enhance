@@ -1,4 +1,4 @@
-class InContextLookupBackground {
+class EnhanceBackground {
   constructor() {
     this.providers = {
       openai: {
@@ -224,4 +224,4 @@ Provide a brief, clear explanation focusing on what it means and why it's releva
 }
 
 // Initialize background script
-new InContextLookupBackground();
+new EnhanceBackground();
