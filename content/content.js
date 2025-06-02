@@ -10,6 +10,19 @@ class InContextLookup {
       meta: false
     };
     this.triggerKeyWasPressedOnMouseDown = false;
+    
+    // Provider configurations for continue conversation
+    this.providerHandlers = {
+      openai: {
+        continueMethod: 'url',
+        handler: this.openChatGPT.bind(this)
+      },
+      anthropic: {
+        continueMethod: 'clipboard',
+        handler: this.openClaude.bind(this)
+      }
+    };
+    
     this.init();
   }
 
@@ -172,18 +185,17 @@ class InContextLookup {
       // Get current settings to determine which provider to use
       const result = await browser.storage.local.get('settings');
       const settings = result.settings || {};
-      const provider = settings.provider || 'alt';
+      const provider = settings.provider || 'openai';
 
       // Use the same context that was sent to the API, or get fresh context if not available
       const pageContext = this.lastPageContext || await this.getPageContext();
       const prompt = this.buildContinuePrompt(pageContext);
 
-      if (provider === 'openai') {
-        this.openChatGPT(prompt);
-      } else if (provider === 'anthropic') {
-        this.openClaude(prompt);
+      const providerHandler = this.providerHandlers[provider];
+      if (providerHandler) {
+        providerHandler.handler(prompt);
       } else {
-        // Default to ChatGPT if unknown provider
+        // Default to OpenAI if unknown provider
         this.openChatGPT(prompt);
       }
     } catch (error) {

@@ -1,21 +1,27 @@
 class OptionsManager {
   constructor() {
-    this.models = {
-      openai: [
-        { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo (Recommended)' },
-        { value: 'gpt-4', label: 'GPT-4' },
-        { value: 'gpt-4-turbo-preview', label: 'GPT-4 Turbo' }
-      ],
-      anthropic: [
-        { value: 'claude-3-sonnet-20240229', label: 'Claude 3 Sonnet (Recommended)' },
-        { value: 'claude-3-opus-20240229', label: 'Claude 3 Opus' },
-        { value: 'claude-3-haiku-20240307', label: 'Claude 3 Haiku' }
-      ]
-    };
-
-    this.apiUrls = {
-      openai: 'https://platform.openai.com/api-keys',
-      anthropic: 'https://console.anthropic.com/account/keys'
+    this.providers = {
+      openai: {
+        name: 'OpenAI',
+        apiKeyUrl: 'https://platform.openai.com/api-keys',
+        continueMethod: 'url',
+        models: [
+          { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo (Recommended)' },
+          { value: 'gpt-4', label: 'GPT-4' },
+          { value: 'gpt-4-turbo-preview', label: 'GPT-4 Turbo' }
+        ]
+      },
+      anthropic: {
+        name: 'Anthropic',
+        apiKeyUrl: 'https://console.anthropic.com/account/keys',
+        continueMethod: 'clipboard',
+        continueInfo: 'When using Anthropic, clicking the continue icon (↗) will open Claude and copy the prompt to your clipboard for pasting.',
+        models: [
+          { value: 'claude-3-sonnet-20240229', label: 'Claude 3 Sonnet (Recommended)' },
+          { value: 'claude-3-opus-20240229', label: 'Claude 3 Opus' },
+          { value: 'claude-3-haiku-20240307', label: 'Claude 3 Haiku' }
+        ]
+      }
     };
 
     this.init();
@@ -73,7 +79,10 @@ class OptionsManager {
     const modelSelect = document.getElementById('model');
     modelSelect.innerHTML = '';
     
-    this.models[provider].forEach((model, index) => {
+    const providerConfig = this.providers[provider];
+    if (!providerConfig) return;
+    
+    providerConfig.models.forEach((model, index) => {
       const option = document.createElement('option');
       option.value = model.value;
       option.textContent = model.label;
@@ -87,22 +96,35 @@ class OptionsManager {
   }
 
   updateAPIKeyVisibility(provider) {
-    const openaiGroup = document.getElementById('openai-api-key-group');
-    const anthropicGroup = document.getElementById('anthropic-api-key-group');
-    const anthropicInfo = document.getElementById('anthropic-continue-info');
-    
-    if (openaiGroup && anthropicGroup) {
-      if (provider === 'openai') {
-        openaiGroup.style.display = 'block';
-        anthropicGroup.style.display = 'none';
-        if (anthropicInfo) anthropicInfo.style.display = 'none';
-      } else if (provider === 'anthropic') {
-        openaiGroup.style.display = 'none';
-        anthropicGroup.style.display = 'block';
-        if (anthropicInfo) anthropicInfo.style.display = 'block';
+    // Hide all provider-specific groups first
+    Object.keys(this.providers).forEach(providerId => {
+      const group = document.getElementById(`${providerId}-api-key-group`);
+      if (group) {
+        group.style.display = 'none';
       }
-    } else {
-      console.error('API key groups not found:', { openaiGroup, anthropicGroup });
+    });
+    
+    // Show the selected provider's group
+    const selectedGroup = document.getElementById(`${provider}-api-key-group`);
+    if (selectedGroup) {
+      selectedGroup.style.display = 'block';
+    }
+    
+    // Handle provider-specific info
+    const providerConfig = this.providers[provider];
+    const infoElement = document.getElementById('anthropic-continue-info');
+    
+    if (infoElement) {
+      if (providerConfig?.continueInfo) {
+        infoElement.style.display = 'block';
+        // Update the info text if needed
+        const helpText = infoElement.querySelector('.help-text');
+        if (helpText) {
+          helpText.innerHTML = `💡 <strong>Continue in AI:</strong> ${providerConfig.continueInfo}`;
+        }
+      } else {
+        infoElement.style.display = 'none';
+      }
     }
   }
 
@@ -169,13 +191,12 @@ class OptionsManager {
       }
 
       // Check that the selected provider has an API key
-      if (provider === 'openai' && !openaiApiKey) {
-        this.showStatus('Please enter your OpenAI API key', 'error');
-        return;
-      }
-
-      if (provider === 'anthropic' && !anthropicApiKey) {
-        this.showStatus('Please enter your Anthropic API key', 'error');
+      const apiKeyField = document.getElementById(`${provider}-api-key`);
+      const apiKey = apiKeyField ? apiKeyField.value.trim() : '';
+      const providerConfig = this.providers[provider];
+      
+      if (!apiKey) {
+        this.showStatus(`Please enter your ${providerConfig?.name || provider} API key`, 'error');
         return;
       }
 
@@ -195,15 +216,22 @@ class OptionsManager {
         return;
       }
 
+      // Build settings object dynamically
       const settings = {
         provider,
-        openaiApiKey,
-        anthropicApiKey,
         model,
         maxTokens,
         maxContextLength,
         triggerKey
       };
+      
+      // Add API keys for all providers
+      Object.keys(this.providers).forEach(providerId => {
+        const keyField = document.getElementById(`${providerId}-api-key`);
+        if (keyField) {
+          settings[`${providerId}ApiKey`] = keyField.value.trim();
+        }
+      });
 
       await browser.storage.local.set({ settings });
       this.showStatus('Settings saved successfully!', 'success');

@@ -1,5 +1,18 @@
 class InContextLookupBackground {
   constructor() {
+    this.providers = {
+      openai: {
+        apiUrl: 'https://api.openai.com/v1/chat/completions',
+        defaultModel: 'gpt-3.5-turbo',
+        handler: this.callOpenAI.bind(this)
+      },
+      anthropic: {
+        apiUrl: 'https://api.anthropic.com/v1/messages',
+        defaultModel: 'claude-3-sonnet-20240229',
+        handler: this.callAnthropic.bind(this)
+      }
+    };
+    
     this.init();
   }
 
@@ -124,13 +137,12 @@ class InContextLookupBackground {
       maxTokens: settings.maxTokens
     });
 
-    if (settings.provider === 'openai') {
-      return await this.callOpenAI(prompt, settings);
-    } else if (settings.provider === 'anthropic') {
-      return await this.callAnthropic(prompt, settings);
-    } else {
-      throw new Error('Unsupported API provider');
+    const providerConfig = this.providers[settings.provider];
+    if (!providerConfig) {
+      throw new Error(`Unsupported API provider: ${settings.provider}`);
     }
+
+    return await providerConfig.handler(prompt, settings);
   }
 
   buildPrompt(data) {
