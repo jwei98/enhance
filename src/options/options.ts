@@ -192,7 +192,7 @@ class OptionsManager {
         // Update the info text if needed
         const helpText = infoElement.querySelector(".help-text");
         if (helpText) {
-          helpText.innerHTML = `💡 <strong>Continue in AI:</strong> ${providerConfig.continueInfo}`;
+          helpText.innerHTML = `💡 <strong>Continue in AI chat:</strong> ${providerConfig.continueInfo}`;
         }
       } else {
         infoElement.style.display = "none";

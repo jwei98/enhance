@@ -340,7 +340,8 @@ Can you help me understand this better and discuss related concepts?`;
     elementsToRemove.forEach((el: Element) => el.remove());
 
     // Get text content and clean up whitespace
-    let textContent = bodyClone.textContent || (bodyClone as any).innerText || "";
+    let textContent =
+      bodyClone.textContent || (bodyClone as any).innerText || "";
 
     // Remove excessive whitespace and normalize
     textContent = textContent
@@ -425,7 +426,6 @@ Can you help me understand this better and discuss related concepts?`;
         );
 
         let node: Node | null;
-        let found = false;
         while ((node = walker.nextNode())) {
           if (node.textContent?.includes(this.selectedText)) {
             const parentElement = node.parentElement;
@@ -438,7 +438,6 @@ Can you help me understand this better and discuss related concepts?`;
                   ?.trim()
                   .replace(/\s+/g, " ")
                   .substring(0, maxContextLength) || "";
-              found = true;
               break;
             }
           }

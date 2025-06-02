@@ -1,6 +1,7 @@
 import browser from "webextension-polyfill";
 
 interface ProviderConfig {
+  name: string;
   apiUrl: string;
   defaultModel: string;
   handler: (prompt: string, settings: Settings) => Promise<string>;
@@ -48,11 +49,13 @@ class EnhanceBackground {
   constructor() {
     this.providers = {
       openai: {
+        name: "OpenAI",
         apiUrl: "https://api.openai.com/v1/chat/completions",
         defaultModel: "gpt-3.5-turbo",
         handler: this.callOpenAI.bind(this),
       },
       anthropic: {
+        name: "Anthropic",
         apiUrl: "https://api.anthropic.com/v1/messages",
         defaultModel: "claude-3-sonnet-20240229",
         handler: this.callAnthropic.bind(this),
@@ -77,6 +80,15 @@ class EnhanceBackground {
     );
   }
 
+  private getApiKey(settings: Settings): string {
+    const apiKeyProperty = `${settings.provider}ApiKey` as keyof Settings;
+    return settings[apiKeyProperty] as string;
+  }
+
+  private getProviderConfig(provider: string): ProviderConfig | undefined {
+    return this.providers[provider];
+  }
+
   async handleExplainText(
     data: PageContext,
     sendResponse: (response: APIResponse) => void
@@ -85,16 +97,13 @@ class EnhanceBackground {
       const settings = await this.getSettings();
 
       // Check if the selected provider has an API key
-      const apiKey =
-        settings.provider === "openai"
-          ? settings.openaiApiKey
-          : settings.anthropicApiKey;
+      const providerConfig = this.getProviderConfig(settings.provider);
+      const apiKey = this.getApiKey(settings);
+      
       if (!apiKey) {
         sendResponse({
           success: false,
-          error: `No ${
-            settings.provider === "openai" ? "OpenAI" : "Anthropic"
-          } API key configured. Please configure your API key in the extension options.`,
+          error: `No ${providerConfig?.name || settings.provider} API key configured. Please configure your API key in the extension options.`,
         });
         return;
       }
@@ -123,16 +132,13 @@ class EnhanceBackground {
       const settings = await this.getTestSettings();
 
       // Check if the selected provider has an API key
-      const apiKey =
-        settings.provider === "openai"
-          ? settings.openaiApiKey
-          : settings.anthropicApiKey;
+      const providerConfig = this.getProviderConfig(settings.provider);
+      const apiKey = this.getApiKey(settings);
+      
       if (!apiKey) {
         sendResponse({
           success: false,
-          error: `No ${
-            settings.provider === "openai" ? "OpenAI" : "Anthropic"
-          } API key configured. Please configure your API key in the extension options.`,
+          error: `No ${providerConfig?.name || settings.provider} API key configured. Please configure your API key in the extension options.`,
         });
         return;
       }
@@ -203,7 +209,7 @@ class EnhanceBackground {
       maxTokens: settings.maxTokens,
     });
 
-    const providerConfig = this.providers[settings.provider];
+    const providerConfig = this.getProviderConfig(settings.provider);
     if (!providerConfig) {
       throw new Error(`Unsupported API provider: ${settings.provider}`);
     }
@@ -236,10 +242,11 @@ Provide a brief, clear explanation focusing on what it means and why it's releva
 
     console.log("OpenAI API request body:", requestBody);
 
+    const apiKey = this.getApiKey(settings);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${settings.openaiApiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(requestBody),
@@ -270,10 +277,11 @@ Provide a brief, clear explanation focusing on what it means and why it's releva
 
     console.log("Anthropic API request body:", requestBody);
 
+    const apiKey = this.getApiKey(settings);
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        "x-api-key": settings.anthropicApiKey,
+        "x-api-key": apiKey,
         "Content-Type": "application/json",
         "anthropic-version": "2023-06-01",
         "anthropic-dangerous-direct-browser-access": "true",
