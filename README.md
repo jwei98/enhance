@@ -22,6 +22,14 @@ Enhance is a browser extension that provides instant AI-powered explanations for
 - **🔧 Configurable**: Customizable trigger keys, response length, and context settings
 - **🌐 Cross-Browser**: Works on Firefox and Chrome (via WebExtension polyfill)
 
+## Usage
+
+1. **Select text** on any webpage while holding your trigger key (Alt by default)
+2. **View the explanation** in the floating box that appears
+3. **Click the continue icon (↗)** to continue the conversation in the AI provider's chat interface
+
+The extension analyzes the selected text in the context of the current webpage and provides relevant explanations.
+
 ## Configuration
 1. Right-click the extension icon and select "Options"
 2. Add your OpenAI or Anthropic API key
@@ -127,14 +135,6 @@ The extension can be tested manually by:
 2. **Configuring API keys** in the options page
 3. **Testing text selection** on any webpage
 4. **Verifying functionality** with different providers and models
-
-## Usage
-
-1. **Select text** on any webpage while holding your trigger key (Alt by default)
-2. **View the explanation** in the floating box that appears
-3. **Click the continue icon (↗)** to continue the conversation in the AI provider's chat interface
-
-The extension analyzes the selected text in the context of the current webpage and provides relevant explanations.
 
 ## Architecture
 
