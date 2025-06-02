@@ -127,6 +127,10 @@ main {
   display: none;
 }
 
+.radio-custom {
+  display: none;
+}
+
 .radio-label input[type="radio"]:checked + .radio-custom + span,
 .radio-label.selected span:last-child {
   color: #4285f4;
@@ -140,34 +144,6 @@ main {
   box-shadow: 0 2px 12px rgba(66, 133, 244, 0.15);
 }
 
-.radio-custom {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #dadce0;
-  border-radius: 50%;
-  margin-right: 14px;
-  position: relative;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.radio-label input[type="radio"]:checked + .radio-custom {
-  border-color: #4285f4;
-  background: #4285f4;
-  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
-}
-
-.radio-label input[type="radio"]:checked + .radio-custom::after {
-  content: '';
-  width: 8px;
-  height: 8px;
-  background: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
 
 .help-text {
   display: block;
