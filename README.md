@@ -87,14 +87,6 @@ enhance/
 └── webpack.config.js         # Build configuration
 ```
 
-### Development Workflow
-
-1. **Make changes** to source files in `src/`
-2. **Run build** with `npm run dev` (watches for changes)
-3. **Load extension** in browser from `dist/` folder
-4. **Test changes** by reloading the extension
-5. **Run production build** with `npm run build` before committing
-
 ### Available Scripts
 
 ```bash
@@ -127,15 +119,6 @@ npm run lint:fix     # Fix linting issues automatically
 4. Click "Load unpacked"
 5. Select the `dist/` folder
 
-### Testing
-
-The extension can be tested manually by:
-
-1. **Loading in browser** (see above)
-2. **Configuring API keys** in the options page
-3. **Testing text selection** on any webpage
-4. **Verifying functionality** with different providers and models
-
 ## Architecture
 
 ### Core Components
@@ -152,49 +135,34 @@ The extension can be tested manually by:
 
 ## Contributing
 
-We welcome contributions! Here's how to get started:
+We welcome contributions! Here's the development workflow:
 
-### 1. Fork and Clone
+### Getting Started
 
+1. **Fork and Clone**
 ```bash
 git clone https://github.com/your-username/enhance.git
 cd enhance
+npm install
 ```
 
-### 2. Create a Branch
-
+2. **Create a Branch**
 ```bash
 git checkout -b feature/your-feature-name
 # or
 git checkout -b fix/your-bug-fix
 ```
 
-### 3. Set Up Development
+### Development Process
 
-```bash
-npm install
-npm run dev  # Start development build with watch mode
-```
+1. **Make changes** to source files in `src/`
+2. **Run build** with `npm run dev` (watches for changes)
+3. **Load extension** in browser from `dist/` folder (see Loading the Extension above)
+4. **Test changes** by reloading the extension
+5. **Test thoroughly** - configure API keys, test text selection, verify functionality
+6. **Run production build** with `npm run build` before committing
 
-### 4. Make Changes
-
-- Follow the existing code style and patterns
-- Add TypeScript types for new functionality
-- Test your changes thoroughly
-- Update documentation if needed
-
-### 5. Test Your Changes
-
-```bash
-# Build and test in browser
-npm run build
-
-# Load extension in Firefox/Chrome
-# Test functionality with different providers
-# Verify options page works correctly
-```
-
-### 6. Commit and Push
+### Submit Changes
 
 ```bash
 git add .
@@ -202,11 +170,7 @@ git commit -m "feat: add your feature description"
 git push origin feature/your-feature-name
 ```
 
-### 7. Create Pull Request
-
-- Open a pull request against the main branch
-- Describe your changes clearly
-- Include screenshots if UI changes are involved
+Then create a pull request with a clear description of your changes.
 
 ### Development Guidelines
 
