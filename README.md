@@ -22,23 +22,7 @@ Enhance is a browser extension that provides instant AI-powered explanations for
 - **🔧 Configurable**: Customizable trigger keys, response length, and context settings
 - **🌐 Cross-Browser**: Works on Firefox and Chrome (via WebExtension polyfill)
 
-## Installation
-
-### For Users
-
-#### Firefox
-1. Download the latest release from the [Releases page](../../releases)
-2. Open Firefox and go to `about:addons`
-3. Click the gear icon and select "Install Add-on From File"
-4. Select the downloaded `.xpi` file
-
-#### Chrome
-1. Download the latest release from the [Releases page](../../releases)
-2. Open Chrome and go to `chrome://extensions/`
-3. Enable "Developer mode"
-4. Click "Load unpacked" and select the extracted extension folder
-
-### Configuration
+## Configuration
 1. Right-click the extension icon and select "Options"
 2. Add your OpenAI or Anthropic API key
 3. Choose your preferred model and settings
