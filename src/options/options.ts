@@ -1,5 +1,22 @@
 import browser from "webextension-polyfill";
 
+// Utility functions for safe DOM element access with type narrowing
+function getElement<T extends HTMLElement>(
+  id: string,
+  constructor: new (...args: any[]) => T
+): T | null {
+  const element = document.getElementById(id);
+  return element instanceof constructor ? element : null;
+}
+
+function querySelector<T extends HTMLElement>(
+  selector: string,
+  constructor: new (...args: any[]) => T
+): T | null {
+  const element = document.querySelector(selector);
+  return element instanceof constructor ? element : null;
+}
+
 interface ModelOption {
   value: string;
   label: string;
@@ -35,19 +52,6 @@ interface APIResponse {
   success: boolean;
   explanation?: string;
   error?: string;
-}
-
-// Type guard functions for safe element type narrowing
-function isHTMLInputElement(
-  element: Element | null
-): element is HTMLInputElement {
-  return element instanceof HTMLInputElement;
-}
-
-function isHTMLSelectElement(
-  element: Element | null
-): element is HTMLSelectElement {
-  return element instanceof HTMLSelectElement;
 }
 
 class OptionsManager {
@@ -204,44 +208,44 @@ class OptionsManager {
       // Set provider (default to 'openai' if none set)
       const provider = settings.provider || "openai";
 
-      const providerRadio = document.getElementById(`provider-${provider}`);
+      const providerRadio = getElement(
+        `provider-${provider}`,
+        HTMLInputElement
+      );
       if (providerRadio) {
-        (providerRadio as HTMLInputElement).checked = true;
+        providerRadio.checked = true;
       } else {
         console.error("Could not find radio button for provider:", provider);
       }
 
-      // Set other fields first (except model - that needs to be set after provider change)
-      const openaiKeyField = document.getElementById("openai-api-key");
-      const anthropicKeyField = document.getElementById("anthropic-api-key");
-      const maxTokensField = document.getElementById("max-tokens");
-      const maxContextLengthField =
-        document.getElementById("max-context-length");
-      const triggerKeyField = document.getElementById("trigger-key");
+      const openaiKeyField = getElement("openai-api-key", HTMLInputElement);
+      const anthropicKeyField = getElement(
+        "anthropic-api-key",
+        HTMLInputElement
+      );
+      const maxTokensField = getElement("max-tokens", HTMLInputElement);
+      const maxContextLengthField = getElement(
+        "max-context-length",
+        HTMLInputElement
+      );
+      const triggerKeyField = getElement("trigger-key", HTMLSelectElement);
 
-      if (isHTMLInputElement(openaiKeyField)) {
-        openaiKeyField.value = settings.openaiApiKey || "";
-      }
-      if (isHTMLInputElement(anthropicKeyField)) {
+      if (openaiKeyField) openaiKeyField.value = settings.openaiApiKey || "";
+      if (anthropicKeyField)
         anthropicKeyField.value = settings.anthropicApiKey || "";
-      }
-      if (isHTMLInputElement(maxTokensField)) {
+      if (maxTokensField)
         maxTokensField.value = String(settings.maxTokens || 150);
-      }
-      if (isHTMLInputElement(maxContextLengthField)) {
+      if (maxContextLengthField)
         maxContextLengthField.value = String(settings.maxContextLength || 1000);
-      }
-      if (isHTMLSelectElement(triggerKeyField)) {
-        triggerKeyField.value = settings.triggerKey || "alt";
-      }
+      if (triggerKeyField) triggerKeyField.value = settings.triggerKey || "alt";
 
       // Trigger all provider-related updates (models, styling, visibility)
       this.onProviderChange(provider);
 
       // Set model after provider change has populated the options
-      const modelField = document.getElementById("model");
+      const modelField = getElement("model", HTMLSelectElement);
       if (modelField && settings.model) {
-        (modelField as HTMLSelectElement).value = settings.model;
+        modelField.value = settings.model;
       }
     } catch (error) {
       console.error("Error loading settings:", error);
@@ -253,22 +257,24 @@ class OptionsManager {
 
   async saveSettings(): Promise<void> {
     try {
-      const providerRadio = document.querySelector(
-        'input[name="provider"]:checked'
-      ) as HTMLInputElement;
+      const providerRadio = querySelector(
+        'input[name="provider"]:checked',
+        HTMLInputElement
+      );
       const provider = providerRadio?.value;
-      const modelField = document.getElementById("model") as HTMLSelectElement;
-      const model = modelField.value;
-      const maxTokensField = document.getElementById(
-        "max-tokens"
-      ) as HTMLInputElement;
-      const maxTokens = parseInt(maxTokensField.value);
-      const maxContextLengthField = document.getElementById(
-        "max-context-length"
-      ) as HTMLInputElement;
-      const maxContextLength = parseInt(maxContextLengthField.value);
-      const triggerKeyField = document.getElementById("trigger-key");
-      const triggerKey = (triggerKeyField as HTMLSelectElement)?.value;
+      const modelField = getElement("model", HTMLSelectElement);
+      const model = modelField?.value;
+      const maxTokensField = getElement("max-tokens", HTMLInputElement);
+      const maxTokens = maxTokensField ? parseInt(maxTokensField.value) : 0;
+      const maxContextLengthField = getElement(
+        "max-context-length",
+        HTMLInputElement
+      );
+      const maxContextLength = maxContextLengthField
+        ? parseInt(maxContextLengthField.value)
+        : 0;
+      const triggerKeyField = getElement("trigger-key", HTMLSelectElement);
+      const triggerKey = triggerKeyField?.value;
 
       if (!provider) {
         this.showStatus("Please select an API provider", "error");
@@ -276,9 +282,7 @@ class OptionsManager {
       }
 
       // Check that the selected provider has an API key
-      const apiKeyField = document.getElementById(
-        `${provider}-api-key`
-      ) as HTMLInputElement;
+      const apiKeyField = getElement(`${provider}-api-key`, HTMLInputElement);
       const apiKey = apiKeyField ? apiKeyField.value.trim() : "";
       const providerConfig = this.providers[provider];
 
@@ -316,19 +320,17 @@ class OptionsManager {
       // Build settings object dynamically
       const settings: Settings = {
         provider,
-        model,
+        model: model || "",
         maxTokens,
         maxContextLength,
-        triggerKey,
+        triggerKey: triggerKey || "alt",
         openaiApiKey: "",
         anthropicApiKey: "",
       };
 
       // Add API keys for all providers
       Object.keys(this.providers).forEach((providerId) => {
-        const keyField = document.getElementById(
-          `${providerId}-api-key`
-        ) as HTMLInputElement;
+        const keyField = getElement(`${providerId}-api-key`, HTMLInputElement);
         if (keyField) {
           settings[`${providerId}ApiKey`] = keyField.value.trim();
         }
@@ -354,29 +356,30 @@ class OptionsManager {
   }
 
   async testAPI(): Promise<void> {
-    const testButton = document.getElementById("test-api") as HTMLButtonElement;
-    const testResult = document.getElementById("test-result") as HTMLElement;
+    const testButton = getElement("test-api", HTMLButtonElement);
+    const testResult = getElement("test-result", HTMLElement);
+
+    if (!testButton || !testResult) return;
 
     testButton.disabled = true;
     testButton.textContent = "Testing...";
     testResult.innerHTML = "";
 
     try {
-      const providerRadio = document.querySelector(
-        'input[name="provider"]:checked'
-      ) as HTMLInputElement;
+      const providerRadio = querySelector(
+        'input[name="provider"]:checked',
+        HTMLInputElement
+      );
       const provider = providerRadio?.value;
-      const modelField = document.getElementById("model") as HTMLSelectElement;
-      const model = modelField.value;
+      const modelField = getElement("model", HTMLSelectElement);
+      const model = modelField?.value;
 
       if (!provider || !model) {
         throw new Error("Please select a provider and model before testing");
       }
 
       // Check that the selected provider has an API key
-      const apiKeyField = document.getElementById(
-        `${provider}-api-key`
-      ) as HTMLInputElement;
+      const apiKeyField = getElement(`${provider}-api-key`, HTMLInputElement);
       const apiKey = apiKeyField?.value.trim();
 
       if (!apiKey) {
@@ -389,31 +392,28 @@ class OptionsManager {
       }
 
       // Temporarily save current settings for test
-      const maxTokensField = document.getElementById(
-        "max-tokens"
-      ) as HTMLInputElement;
-      const maxContextLengthField = document.getElementById(
-        "max-context-length"
-      ) as HTMLInputElement;
-      const triggerKeyField = document.getElementById(
-        "trigger-key"
-      ) as HTMLSelectElement;
+      const maxTokensField = getElement("max-tokens", HTMLInputElement);
+      const maxContextLengthField = getElement(
+        "max-context-length",
+        HTMLInputElement
+      );
+      const triggerKeyField = getElement("trigger-key", HTMLSelectElement);
 
       const testSettings: Settings = {
         provider,
         model,
-        maxTokens: parseInt(maxTokensField.value) || 150,
-        maxContextLength: parseInt(maxContextLengthField.value) || 1000,
-        triggerKey: triggerKeyField.value || "alt",
+        maxTokens: maxTokensField ? parseInt(maxTokensField.value) || 150 : 150,
+        maxContextLength: maxContextLengthField
+          ? parseInt(maxContextLengthField.value) || 1000
+          : 1000,
+        triggerKey: triggerKeyField?.value || "alt",
         openaiApiKey: "",
         anthropicApiKey: "",
       };
 
       // Add API keys for all providers
       Object.keys(this.providers).forEach((providerId) => {
-        const keyField = document.getElementById(
-          `${providerId}-api-key`
-        ) as HTMLInputElement;
+        const keyField = getElement(`${providerId}-api-key`, HTMLInputElement);
         if (keyField) {
           testSettings[`${providerId}ApiKey`] = keyField.value.trim();
         }
@@ -451,9 +451,10 @@ class OptionsManager {
   }
 
   openAPIKeyPage(): void {
-    const providerRadio = document.querySelector(
-      'input[name="provider"]:checked'
-    ) as HTMLInputElement;
+    const providerRadio = querySelector(
+      'input[name="provider"]:checked',
+      HTMLInputElement
+    );
     const provider = providerRadio?.value || "openai";
     const providerConfig = this.providers[provider];
     if (providerConfig) {
@@ -465,7 +466,9 @@ class OptionsManager {
     message: string,
     type: "info" | "success" | "error" = "info"
   ): void {
-    const status = document.getElementById("status") as HTMLElement;
+    const status = getElement("status", HTMLElement);
+    if (!status) return;
+
     status.textContent = message;
     status.className = `status ${type}`;
 
