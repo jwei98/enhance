@@ -94,7 +94,7 @@ class Enhance {
     document.addEventListener("click", (e) => {
       if (this.floatingBox && this.floatingBox.style.display !== "none") {
         // Check if click is outside the floating box
-        if (!this.floatingBox.contains(e.target as Node)) {
+        if (e.target instanceof Node && !this.floatingBox.contains(e.target)) {
           this.hideFloatingBox();
         }
       }
@@ -139,7 +139,7 @@ class Enhance {
         // Don't hide the floating box if the click was inside it
         if (
           !this.floatingBox ||
-          !this.floatingBox.contains(e.target as Node) ||
+          (e.target instanceof Node && !this.floatingBox.contains(e.target)) ||
           this.floatingBox.style.display === "none"
         ) {
           this.hideFloatingBox();
@@ -206,10 +206,8 @@ class Enhance {
     this.floatingBox.style.display = "block";
 
     // Reset explanation content
-    const explanationEl = this.floatingBox.querySelector(
-      ".explanation"
-    ) as HTMLElement;
-    if (explanationEl) {
+    const explanationEl = this.floatingBox.querySelector(".explanation");
+    if (explanationEl instanceof HTMLElement) {
       explanationEl.innerHTML = '<div class="loading">Analyzing...</div>';
     }
   }
@@ -339,10 +337,10 @@ Can you help me understand this better and discuss related concepts?`;
     const elementsToRemove = bodyClone.querySelectorAll(
       "script, style, noscript, svg, canvas, iframe, object, embed"
     );
-    elementsToRemove.forEach((el) => el.remove());
+    elementsToRemove.forEach((el: Element) => el.remove());
 
     // Get text content and clean up whitespace
-    let textContent = bodyClone.textContent || bodyClone.innerText || "";
+    let textContent = bodyClone.textContent || (bodyClone as any).innerText || "";
 
     // Remove excessive whitespace and normalize
     textContent = textContent
@@ -430,7 +428,7 @@ Can you help me understand this better and discuss related concepts?`;
         let found = false;
         while ((node = walker.nextNode())) {
           if (node.textContent?.includes(this.selectedText)) {
-            const parentElement = (node as Text).parentElement;
+            const parentElement = node.parentElement;
             const contextElement = parentElement?.closest(
               "p, article, section, div.content, div.post, div.article, main"
             );
@@ -476,27 +474,21 @@ Can you help me understand this better and discuss related concepts?`;
       );
 
       if (response.success && this.floatingBox) {
-        const explanationEl = this.floatingBox.querySelector(
-          ".explanation"
-        ) as HTMLElement;
-        if (explanationEl) {
+        const explanationEl = this.floatingBox.querySelector(".explanation");
+        if (explanationEl instanceof HTMLElement) {
           explanationEl.innerHTML = `<div class="explanation-text">${response.explanation}<span class="continue-icon" title="Continue in AI">↗</span></div>`;
 
           // Add click handler to the continue icon
-          const continueIcon = this.floatingBox.querySelector(
-            ".continue-icon"
-          ) as HTMLElement;
-          if (continueIcon) {
+          const continueIcon = this.floatingBox.querySelector(".continue-icon");
+          if (continueIcon instanceof HTMLElement) {
             continueIcon.addEventListener("click", () => {
               this.openContinueConversation();
             });
           }
         }
       } else if (this.floatingBox) {
-        const explanationEl = this.floatingBox.querySelector(
-          ".explanation"
-        ) as HTMLElement;
-        if (explanationEl) {
+        const explanationEl = this.floatingBox.querySelector(".explanation");
+        if (explanationEl instanceof HTMLElement) {
           explanationEl.innerHTML = `
             <div class="error">Error: ${response.error}</div>
           `;
@@ -504,10 +496,8 @@ Can you help me understand this better and discuss related concepts?`;
       }
     } catch (error) {
       if (this.floatingBox) {
-        const explanationEl = this.floatingBox.querySelector(
-          ".explanation"
-        ) as HTMLElement;
-        if (explanationEl) {
+        const explanationEl = this.floatingBox.querySelector(".explanation");
+        if (explanationEl instanceof HTMLElement) {
           explanationEl.innerHTML = `
             <div class="error">Failed to get explanation: ${
               error instanceof Error ? error.message : "Unknown error"

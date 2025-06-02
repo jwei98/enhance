@@ -37,6 +37,19 @@ interface APIResponse {
   error?: string;
 }
 
+// Type guard functions for safe element type narrowing
+function isHTMLInputElement(
+  element: Element | null
+): element is HTMLInputElement {
+  return element instanceof HTMLInputElement;
+}
+
+function isHTMLSelectElement(
+  element: Element | null
+): element is HTMLSelectElement {
+  return element instanceof HTMLSelectElement;
+}
+
 class OptionsManager {
   private providers: Record<string, ProviderConfig>;
 
@@ -78,19 +91,11 @@ class OptionsManager {
   }
 
   bindEvents(): void {
-    const openaiRadio = document.getElementById(
-      "provider-openai"
-    ) as HTMLInputElement;
-    const anthropicRadio = document.getElementById(
-      "provider-anthropic"
-    ) as HTMLInputElement;
-    const saveButton = document.getElementById(
-      "save-settings"
-    ) as HTMLButtonElement;
-    const resetButton = document.getElementById(
-      "reset-settings"
-    ) as HTMLButtonElement;
-    const testButton = document.getElementById("test-api") as HTMLButtonElement;
+    const openaiRadio = document.getElementById("provider-openai");
+    const anthropicRadio = document.getElementById("provider-anthropic");
+    const saveButton = document.getElementById("save-settings");
+    const resetButton = document.getElementById("reset-settings");
+    const testButton = document.getElementById("test-api");
 
     if (openaiRadio) {
       openaiRadio.addEventListener("change", () =>
@@ -128,7 +133,7 @@ class OptionsManager {
     // Add selected class to the checked radio's label
     const checkedRadio = document.querySelector(
       'input[name="provider"]:checked'
-    ) as HTMLInputElement;
+    );
     if (checkedRadio) {
       const label = checkedRadio.closest(".radio-label");
       if (label) {
@@ -138,7 +143,8 @@ class OptionsManager {
   }
 
   updateModelOptions(provider: string): void {
-    const modelSelect = document.getElementById("model") as HTMLSelectElement;
+    const modelSelect = document.getElementById("model");
+    if (!modelSelect) return;
     modelSelect.innerHTML = "";
 
     const providerConfig = this.providers[provider];
@@ -148,7 +154,7 @@ class OptionsManager {
       const option = document.createElement("option");
       option.value = model.value;
       option.textContent = model.label;
-      modelSelect.appendChild(option);
+      if (modelSelect) modelSelect.appendChild(option);
 
       // Auto-select the first model (which is the recommended one)
       if (index === 0) {
@@ -180,7 +186,7 @@ class OptionsManager {
       if (providerConfig?.continueInfo) {
         infoElement.style.display = "block";
         // Update the info text if needed
-        const helpText = infoElement.querySelector(".help-text") as HTMLElement;
+        const helpText = infoElement.querySelector(".help-text");
         if (helpText) {
           helpText.innerHTML = `💡 <strong>Continue in AI:</strong> ${providerConfig.continueInfo}`;
         }
@@ -198,47 +204,44 @@ class OptionsManager {
       // Set provider (default to 'openai' if none set)
       const provider = settings.provider || "openai";
 
-      const providerRadio = document.getElementById(
-        `provider-${provider}`
-      ) as HTMLInputElement;
+      const providerRadio = document.getElementById(`provider-${provider}`);
       if (providerRadio) {
-        providerRadio.checked = true;
+        (providerRadio as HTMLInputElement).checked = true;
       } else {
         console.error("Could not find radio button for provider:", provider);
       }
 
       // Set other fields first (except model - that needs to be set after provider change)
-      const openaiKeyField = document.getElementById(
-        "openai-api-key"
-      ) as HTMLInputElement;
-      const anthropicKeyField = document.getElementById(
-        "anthropic-api-key"
-      ) as HTMLInputElement;
-      const maxTokensField = document.getElementById(
-        "max-tokens"
-      ) as HTMLInputElement;
-      const maxContextLengthField = document.getElementById(
-        "max-context-length"
-      ) as HTMLInputElement;
-      const triggerKeyField = document.getElementById(
-        "trigger-key"
-      ) as HTMLSelectElement;
+      const openaiKeyField = document.getElementById("openai-api-key");
+      const anthropicKeyField = document.getElementById("anthropic-api-key");
+      const maxTokensField = document.getElementById("max-tokens");
+      const maxContextLengthField =
+        document.getElementById("max-context-length");
+      const triggerKeyField = document.getElementById("trigger-key");
 
-      if (openaiKeyField) openaiKeyField.value = settings.openaiApiKey || "";
-      if (anthropicKeyField)
+      if (isHTMLInputElement(openaiKeyField)) {
+        openaiKeyField.value = settings.openaiApiKey || "";
+      }
+      if (isHTMLInputElement(anthropicKeyField)) {
         anthropicKeyField.value = settings.anthropicApiKey || "";
-      if (maxTokensField) maxTokensField.value = settings.maxTokens || 150;
-      if (maxContextLengthField)
-        maxContextLengthField.value = settings.maxContextLength || 1000;
-      if (triggerKeyField) triggerKeyField.value = settings.triggerKey || "alt";
+      }
+      if (isHTMLInputElement(maxTokensField)) {
+        maxTokensField.value = String(settings.maxTokens || 150);
+      }
+      if (isHTMLInputElement(maxContextLengthField)) {
+        maxContextLengthField.value = String(settings.maxContextLength || 1000);
+      }
+      if (isHTMLSelectElement(triggerKeyField)) {
+        triggerKeyField.value = settings.triggerKey || "alt";
+      }
 
       // Trigger all provider-related updates (models, styling, visibility)
       this.onProviderChange(provider);
 
       // Set model after provider change has populated the options
-      const modelField = document.getElementById("model") as HTMLSelectElement;
+      const modelField = document.getElementById("model");
       if (modelField && settings.model) {
-        modelField.value = settings.model;
+        (modelField as HTMLSelectElement).value = settings.model;
       }
     } catch (error) {
       console.error("Error loading settings:", error);
@@ -264,10 +267,8 @@ class OptionsManager {
         "max-context-length"
       ) as HTMLInputElement;
       const maxContextLength = parseInt(maxContextLengthField.value);
-      const triggerKeyField = document.getElementById(
-        "trigger-key"
-      ) as HTMLSelectElement;
-      const triggerKey = triggerKeyField.value;
+      const triggerKeyField = document.getElementById("trigger-key");
+      const triggerKey = (triggerKeyField as HTMLSelectElement)?.value;
 
       if (!provider) {
         this.showStatus("Please select an API provider", "error");
