@@ -1,6 +1,6 @@
-# In-Context Lookup Firefox Extension
+# Enhance Browser Extension
 
-A Firefox extension that allows you to select text on any webpage and get AI-powered explanations in context using OpenAI or Anthropic APIs.
+A cross-browser extension (Firefox & Chrome) that allows you to select text on any webpage and get AI-powered explanations in context using OpenAI or Anthropic APIs.
 
 ## Features
 
@@ -9,6 +9,15 @@ A Firefox extension that allows you to select text on any webpage and get AI-pow
 - 🎯 Context-aware explanations that consider the webpage content
 - ⚙️ Easy configuration through extension options
 - 🔒 Secure local storage of API keys
+
+## Browser Compatibility
+
+✅ **Firefox** - Native support  
+✅ **Chrome** - Supported via WebExtension polyfill  
+✅ **Edge** - Should work (same engine as Chrome)  
+✅ **Opera** - Should work (Chromium-based)
+
+The extension uses the WebExtension polyfill to ensure compatibility across all major browsers while maintaining a single codebase.
 
 ## Setup Instructions
 
@@ -21,10 +30,18 @@ Create the following icon files in the `icons/` directory:
 ### 2. Install the Extension
 
 #### Development Installation:
+
+**Firefox:**
 1. Open Firefox and navigate to `about:debugging`
 2. Click "This Firefox" in the left sidebar
 3. Click "Load Temporary Add-on"
 4. Select the `manifest.json` file from this directory
+
+**Chrome:**
+1. Open Chrome and navigate to `chrome://extensions/`
+2. Enable "Developer mode" in the top right
+3. Click "Load unpacked"
+4. Select this directory (containing `manifest.json`)
 
 #### Production Installation:
 1. Package the extension: `web-ext build`
