@@ -63,7 +63,7 @@ class EnhanceBackground {
   }
 
   init(): void {
-    browser.runtime.onMessage.addListener((message: MessageType, sender, sendResponse) => {
+    browser.runtime.onMessage.addListener((message: any, sender, sendResponse) => {
       if (message.action === 'explainText') {
         this.handleExplainText(message.data, sendResponse);
         return true; // Keep message channel open for async response
@@ -71,6 +71,7 @@ class EnhanceBackground {
         this.handleTestAPI(message.data, sendResponse);
         return true; // Keep message channel open for async response
       }
+      return; // Explicit void return for unknown messages
     });
   }
 
