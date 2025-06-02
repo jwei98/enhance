@@ -18,7 +18,6 @@ Enhance is a browser extension that provides instant AI-powered explanations for
 
 - **🎯 Smart Text Selection**: Hold Alt (or your preferred key) + select text to get instant explanations
 - **🤖 Multiple AI Providers**: Support for OpenAI (GPT models) and Anthropic (Claude models)
-- **📱 Dynamic Model Loading**: Automatically fetches the latest available models from OpenAI
 - **🎨 Clean Interface**: Floating explanations with continue-to-chat functionality
 - **🔧 Configurable**: Customizable trigger keys, response length, and context settings
 - **🌐 Cross-Browser**: Works on Firefox and Chrome (via WebExtension polyfill)
@@ -164,7 +163,6 @@ The extension analyzes the selected text in the context of the current webpage a
 ### Key Features
 
 - **Provider System**: Scalable architecture for adding new AI providers
-- **Dynamic Models**: Automatically fetches available models from OpenAI API
 - **Type Safety**: Full TypeScript implementation with strict typing
 - **Cross-Browser**: WebExtension polyfill for Chrome compatibility
 
@@ -266,7 +264,7 @@ async callNewProvider(prompt: string, settings: Settings): Promise<string> {
 ## API Providers
 
 ### OpenAI
-- **Models**: Automatically fetched from API (GPT-4o, GPT-4 Turbo, GPT-3.5 Turbo, etc.)
+- **Models**: GPT-4o, GPT-4 Turbo, GPT-3.5 Turbo
 - **Cost**: Pay per token usage
 - **API Key**: Get at [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
 
