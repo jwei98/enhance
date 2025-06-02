@@ -209,49 +209,12 @@ async callNewProvider(prompt: string, settings: Settings): Promise<string> {
 4. **Add UI Elements** in options page for the new provider
 5. **Test thoroughly** with the new provider
 
-## API Providers
-
-### OpenAI
-- **Models**: GPT-4o, GPT-4 Turbo, GPT-3.5 Turbo
-- **Cost**: Pay per token usage
-- **API Key**: Get at [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-
-### Anthropic
-- **Models**: Claude 3.5 Sonnet, Claude 3 Opus, Claude 3 Haiku
-- **Cost**: Pay per token usage  
-- **API Key**: Get at [console.anthropic.com/account/keys](https://console.anthropic.com/account/keys)
-
 ## Privacy & Security
 
 - **Local Storage**: API keys are stored locally using browser's secure storage API
 - **No Tracking**: No data is sent to external servers except your chosen AI provider
 - **On-Demand**: Text selection and webpage context are only sent when you explicitly trigger an explanation
 - **No Analytics**: No tracking or analytics are collected
-
-## Troubleshooting
-
-### Common Issues
-
-**"No API key configured" error:**
-- Go to extension options and configure your API key
-
-**"API request failed" error:**
-- Check your API key is valid and has credits
-- Verify you selected the correct provider and model
-- Test the connection in options page
-
-**Floating box doesn't appear:**
-- Make sure you held the trigger key while selecting text
-- Check if the website blocks extension scripts
-- Try refreshing the page
-
-**Models not loading:**
-- Check your API key is valid
-- Ensure you have an active internet connection
-- Try refreshing the options page
-
-### Browser Console Logs
-Open browser console (F12) to see detailed error messages and debug information.
 
 ## Browser Compatibility
 
