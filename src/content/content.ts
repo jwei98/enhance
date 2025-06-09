@@ -155,13 +155,21 @@ class Enhance {
     this.floatingBox = document.createElement("div");
     this.floatingBox.id = "enhance-box";
     this.floatingBox.style.display = "none";
-    this.floatingBox.innerHTML = `
-      <div class="box-body">
-        <div class="explanation">
-          <div class="loading">Analyzing...</div>
-        </div>
-      </div>
-    `;
+    
+    // Build the structure using DOM methods
+    const boxBody = document.createElement("div");
+    boxBody.className = "box-body";
+    
+    const explanation = document.createElement("div");
+    explanation.className = "explanation";
+    
+    const loading = document.createElement("div");
+    loading.className = "loading";
+    loading.textContent = "Analyzing...";
+    
+    explanation.appendChild(loading);
+    boxBody.appendChild(explanation);
+    this.floatingBox.appendChild(boxBody);
 
     // Prevent clicks inside the floating box from bubbling up
     this.floatingBox.addEventListener("click", (e) => {
@@ -208,7 +216,16 @@ class Enhance {
     // Reset explanation content
     const explanationEl = this.floatingBox.querySelector(".explanation");
     if (explanationEl instanceof HTMLElement) {
-      explanationEl.innerHTML = '<div class="loading">Analyzing...</div>';
+      // Clear existing content
+      while (explanationEl.firstChild) {
+        explanationEl.removeChild(explanationEl.firstChild);
+      }
+      
+      // Add loading element
+      const loading = document.createElement("div");
+      loading.className = "loading";
+      loading.textContent = "Analyzing...";
+      explanationEl.appendChild(loading);
     }
   }
 
@@ -475,33 +492,59 @@ Can you help me understand this better and discuss related concepts?`;
       if (response.success && this.floatingBox) {
         const explanationEl = this.floatingBox.querySelector(".explanation");
         if (explanationEl instanceof HTMLElement) {
-          explanationEl.innerHTML = `<div class="explanation-text">${response.explanation}<span class="continue-icon" title="Continue in AI">↗</span></div>`;
-
-          // Add click handler to the continue icon
-          const continueIcon = this.floatingBox.querySelector(".continue-icon");
-          if (continueIcon instanceof HTMLElement) {
-            continueIcon.addEventListener("click", () => {
-              this.openContinueConversation();
-            });
+          // Clear existing content
+          while (explanationEl.firstChild) {
+            explanationEl.removeChild(explanationEl.firstChild);
           }
+          
+          // Create explanation text container
+          const explanationText = document.createElement("div");
+          explanationText.className = "explanation-text";
+          explanationText.textContent = response.explanation || "";
+          
+          // Create continue icon
+          const continueIcon = document.createElement("span");
+          continueIcon.className = "continue-icon";
+          continueIcon.title = "Continue in AI";
+          continueIcon.textContent = "↗";
+          continueIcon.addEventListener("click", () => {
+            this.openContinueConversation();
+          });
+          
+          explanationText.appendChild(continueIcon);
+          explanationEl.appendChild(explanationText);
         }
       } else if (this.floatingBox) {
         const explanationEl = this.floatingBox.querySelector(".explanation");
         if (explanationEl instanceof HTMLElement) {
-          explanationEl.innerHTML = `
-            <div class="error">Error: ${response.error}</div>
-          `;
+          // Clear existing content
+          while (explanationEl.firstChild) {
+            explanationEl.removeChild(explanationEl.firstChild);
+          }
+          
+          // Create error element
+          const errorDiv = document.createElement("div");
+          errorDiv.className = "error";
+          errorDiv.textContent = `Error: ${response.error}`;
+          explanationEl.appendChild(errorDiv);
         }
       }
     } catch (error) {
       if (this.floatingBox) {
         const explanationEl = this.floatingBox.querySelector(".explanation");
         if (explanationEl instanceof HTMLElement) {
-          explanationEl.innerHTML = `
-            <div class="error">Failed to get explanation: ${
-              error instanceof Error ? error.message : "Unknown error"
-            }</div>
-          `;
+          // Clear existing content
+          while (explanationEl.firstChild) {
+            explanationEl.removeChild(explanationEl.firstChild);
+          }
+          
+          // Create error element
+          const errorDiv = document.createElement("div");
+          errorDiv.className = "error";
+          errorDiv.textContent = `Failed to get explanation: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`;
+          explanationEl.appendChild(errorDiv);
         }
       }
     }

@@ -150,7 +150,11 @@ class OptionsManager {
   updateModelOptions(provider: string): void {
     const modelSelect = document.getElementById("model");
     if (!modelSelect) return;
-    modelSelect.innerHTML = "";
+    
+    // Clear existing options safely
+    while (modelSelect.firstChild) {
+      modelSelect.removeChild(modelSelect.firstChild);
+    }
 
     const providerConfig = this.providers[provider];
     if (!providerConfig) return;
@@ -193,7 +197,21 @@ class OptionsManager {
         // Update the info text if needed
         const helpText = infoElement.querySelector(".help-text");
         if (helpText) {
-          helpText.innerHTML = `💡 <strong>Continue in AI chat:</strong> ${providerConfig.continueInfo}`;
+          // Clear existing content
+          while (helpText.firstChild) {
+            helpText.removeChild(helpText.firstChild);
+          }
+          
+          // Add emoji
+          helpText.appendChild(document.createTextNode("💡 "));
+          
+          // Add strong text
+          const strong = document.createElement("strong");
+          strong.textContent = "Continue in AI chat:";
+          helpText.appendChild(strong);
+          
+          // Add info text
+          helpText.appendChild(document.createTextNode(` ${providerConfig.continueInfo}`));
         }
       } else {
         infoElement.style.display = "none";
@@ -364,7 +382,10 @@ class OptionsManager {
 
     testButton.disabled = true;
     testButton.textContent = "Testing...";
-    testResult.innerHTML = "";
+    // Clear test result safely
+    while (testResult.firstChild) {
+      testResult.removeChild(testResult.firstChild);
+    }
 
     try {
       const providerRadio = querySelector(
@@ -435,14 +456,23 @@ class OptionsManager {
       })) as APIResponse;
 
       if (response.success) {
-        testResult.innerHTML = `<div class="success">✅ API test successful!</div>`;
+        const successDiv = document.createElement("div");
+        successDiv.className = "success";
+        successDiv.textContent = "✅ API test successful!";
+        testResult.appendChild(successDiv);
       } else {
-        testResult.innerHTML = `<div class="error">❌ API test failed: ${response.error}</div>`;
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "error";
+        errorDiv.textContent = `❌ API test failed: ${response.error}`;
+        testResult.appendChild(errorDiv);
       }
     } catch (error) {
-      testResult.innerHTML = `<div class="error">❌ Test failed: ${
+      const errorDiv = document.createElement("div");
+      errorDiv.className = "error";
+      errorDiv.textContent = `❌ Test failed: ${
         error instanceof Error ? error.message : "Unknown error"
-      }</div>`;
+      }`;
+      testResult.appendChild(errorDiv);
     } finally {
       testButton.disabled = false;
       testButton.textContent = "Test API Connection";
@@ -466,7 +496,10 @@ class OptionsManager {
   clearTestResult(): void {
     const testResult = getElement("test-result", HTMLElement);
     if (testResult) {
-      testResult.innerHTML = "";
+      // Clear test result safely
+      while (testResult.firstChild) {
+        testResult.removeChild(testResult.firstChild);
+      }
     }
   }
 
